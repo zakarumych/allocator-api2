@@ -1,0 +1,18 @@
+[package]
+name = "allocator-api2"
+version = "0.0.0"
+edition = "2018"
+authors = ["Zakarum <zaq.dev@icloud.com>"]
+license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/allocator-api2"
+homepage = "https://github.com/zakarumych/allocator-api2"
+repository = "https://github.com/zakarumych/allocator-api2"
+readme = "README.md"
+
+[features]
+alloc = []
+std = ["alloc"]
+default = ["std"]
+
+[dependencies]
+sptr = { version = "0.3" }
