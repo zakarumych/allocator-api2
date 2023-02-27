@@ -1,10 +1,10 @@
-# allocator_api2
+# allocator-api2
 
-[![crates](https://img.shields.io/crates/v/allocator_api2.svg?style=for-the-badge&label=allocator_api2)](https://crates.io/crates/allocator_api2)
-[![docs](https://img.shields.io/badge/docs.rs-allocator--api2-66c2a5?style=for-the-badge&labelColor=555555&logoColor=white)](https://docs.rs/allocator_api2)
-[![actions](https://img.shields.io/github/actions/workflow/status/zakarumych/allocator_api2/badge.yml?branch=main&style=for-the-badge)](https://github.com/zakarumych/allocator_api2/actions/workflows/badge.yml)
+[![crates](https://img.shields.io/crates/v/allocator-api2.svg?style=for-the-badge&label=allocator-api2)](https://crates.io/crates/allocator-api2)
+[![docs](https://img.shields.io/badge/docs.rs-allocator--api2-66c2a5?style=for-the-badge&labelColor=555555&logoColor=white)](https://docs.rs/allocator-api2)
+[![actions](https://img.shields.io/github/actions/workflow/status/zakarumych/allocator-api2/badge.yml?branch=main&style=for-the-badge)](https://github.com/zakarumych/allocator-api2/actions/workflows/badge.yml)
 [![MIT/Apache](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](COPYING)
-![loc](https://img.shields.io/tokei/lines/github/zakarumych/allocator_api2?style=for-the-badge)
+![loc](https://img.shields.io/tokei/lines/github/zakarumych/allocator-api2?style=for-the-badge)
 
 This crate mirrors types and traits from Rust's unstable [`allocator_api`]
 The intention of this crate is to serve as substitution for actual thing

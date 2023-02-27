@@ -1,12 +1,12 @@
 [package]
-name = "allocator_api2"
+name = "allocator-api2"
 version = "0.1.1"
 edition = "2018"
 authors = ["Zakarum <zaq.dev@icloud.com>"]
 license = "MIT OR Apache-2.0"
-documentation = "https://docs.rs/allocator_api2"
-homepage = "https://github.com/zakarumych/allocator_api2"
-repository = "https://github.com/zakarumych/allocator_api2"
+documentation = "https://docs.rs/allocator-api2"
+homepage = "https://github.com/zakarumych/allocator-api2"
+repository = "https://github.com/zakarumych/allocator-api2"
 readme = "README.md"
 description = "Mirrot of Rust's allocator API"
 

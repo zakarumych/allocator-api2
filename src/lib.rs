@@ -1,5 +1,5 @@
 //!
-//! allocator_api2 crate.
+//! allocator-api2 crate.
 //!
 #![cfg_attr(not(feature = "std"), no_std)]
 
