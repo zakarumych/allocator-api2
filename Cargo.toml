@@ -8,6 +8,7 @@ documentation = "https://docs.rs/allocator-api2"
 homepage = "https://github.com/zakarumych/allocator-api2"
 repository = "https://github.com/zakarumych/allocator-api2"
 readme = "README.md"
+description = "Mirrot of Rust's allocator API"
 
 [features]
 alloc = []
