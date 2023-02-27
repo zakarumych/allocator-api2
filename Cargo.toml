@@ -13,6 +13,7 @@ readme = "README.md"
 alloc = []
 std = ["alloc"]
 default = ["std"]
+nightly = []
 
 [dependencies]
 sptr = { version = "0.3" }

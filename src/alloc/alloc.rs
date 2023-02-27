@@ -1,7 +1,5 @@
 use core::ptr::NonNull;
 
-use crate::assume;
-
 #[doc(inline)]
 pub use real_alloc::alloc::{alloc, alloc_zeroed, dealloc, handle_alloc_error, realloc};
 
@@ -185,5 +183,20 @@ unsafe impl Allocator for Global {
                 Ok(new_ptr)
             },
         }
+    }
+}
+
+#[track_caller]
+#[cfg(debug_assertions)]
+unsafe fn assume(v: bool) {
+    if !v {
+        core::unreachable!()
+    }
+}
+
+#[cfg(not(debug_assertions))]
+unsafe fn assume(v: bool) {
+    if !v {
+        core::hint::unreachable_unchecked()
     }
 }
