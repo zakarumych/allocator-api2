@@ -10,6 +10,7 @@ extern crate alloc as real_alloc;
 mod core;
 
 #[cfg(not(feature = "nightly"))]
+#[cfg(feature = "alloc")]
 mod alloc;
 
 #[cfg(not(feature = "nightly"))]
