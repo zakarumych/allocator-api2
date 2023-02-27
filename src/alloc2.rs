@@ -1,10 +1,10 @@
 use core::ptr::NonNull;
 
 #[doc(inline)]
-pub use real_alloc::alloc::{alloc, alloc_zeroed, dealloc, handle_alloc_error, realloc};
+pub use alloc::alloc::{alloc, alloc_zeroed, dealloc, handle_alloc_error, realloc};
 
 #[doc(inline)]
-pub use crate::core::*;
+pub use crate::core2::*;
 
 /// The global memory allocator.
 ///

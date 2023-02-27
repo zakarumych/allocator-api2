@@ -4,29 +4,31 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(feature = "alloc")]
-extern crate alloc as real_alloc;
+extern crate alloc;
 
 #[cfg(not(feature = "nightly"))]
-mod core;
+mod core2;
 
 #[cfg(not(feature = "nightly"))]
 #[cfg(feature = "alloc")]
-mod alloc;
+mod alloc2;
 
 #[cfg(not(feature = "nightly"))]
+#[cfg(not(feature = "alloc"))]
 #[doc(inline)]
-pub use self::core::*;
+pub use self::core2::*;
+
+#[cfg(not(feature = "nightly"))]
+#[cfg(feature = "alloc")]
+#[doc(inline)]
+pub use self::alloc2::*;
 
 #[cfg(feature = "nightly")]
+#[cfg(not(feature = "alloc"))]
 #[doc(inline)]
 pub use core::alloc::*;
 
-#[cfg(not(feature = "nightly"))]
-#[cfg(feature = "alloc")]
-#[doc(inline)]
-pub use self::alloc::*;
-
 #[cfg(feature = "nightly")]
 #[cfg(feature = "alloc")]
 #[doc(inline)]
-pub use core::alloc::*;
+pub use alloc::alloc::*;
