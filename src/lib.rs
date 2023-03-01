@@ -32,3 +32,17 @@ pub use core::alloc::*;
 #[cfg(feature = "alloc")]
 #[doc(inline)]
 pub use alloc::alloc::*;
+
+#[cfg(feature = "nightly")]
+#[cfg(feature = "alloc")]
+#[doc(inline)]
+pub use alloc::{boxed, vec};
+
+#[cfg(feature = "alloc")]
+#[cfg(not(feature = "nightly"))]
+#[macro_export]
+macro_rules! vec {
+    ($($t:tt)*) => {
+        alloc::vec!( $($t)* )
+    };
+}
