@@ -1915,3 +1915,28 @@ mod error {
         }
     }
 }
+
+#[cfg(feature = "serde")]
+impl<T, A> serde::Serialize for Box<T, A>
+where
+    T: serde::Serialize,
+    A: Allocator,
+{
+    #[inline]
+    fn serialize<S: serde::ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        (**self).serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T, A> serde::Deserialize<'de> for Box<T, A>
+where
+    T: serde::Deserialize<'de>,
+    A: Allocator + Default,
+{
+    #[inline]
+    fn deserialize<D: serde::de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let value = T::deserialize(deserializer)?;
+        Ok(Box::new_in(value, A::default()))
+    }
+}
