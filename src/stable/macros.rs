@@ -6,7 +6,17 @@
 /// - Create a [`Vec`] containing a given list of elements:
 ///
 /// ```
+/// use allocator_api2::vec;
 /// let v = vec![1, 2, 3];
+/// assert_eq!(v[0], 1);
+/// assert_eq!(v[1], 2);
+/// assert_eq!(v[2], 3);
+/// ```
+///
+///
+/// ```
+/// use allocator_api2::{vec, alloc::Global};
+/// let v = vec![in Global; 1, 2, 3];
 /// assert_eq!(v[0], 1);
 /// assert_eq!(v[1], 2);
 /// assert_eq!(v[2], 3);
@@ -15,7 +25,14 @@
 /// - Create a [`Vec`] from a given element and size:
 ///
 /// ```
+/// use allocator_api2::vec;
 /// let v = vec![1; 3];
+/// assert_eq!(v, [1, 1, 1]);
+/// ```
+///
+/// ```
+/// use allocator_api2::{vec, alloc::Global};
+/// let v = vec![in Global; 1; 3];
 /// assert_eq!(v, [1, 1, 1]);
 /// ```
 ///
@@ -44,7 +61,7 @@ macro_rules! vec {
         $crate::vec::from_elem_in($elem, $n, $alloc)
     );
     (in $alloc:expr; $($x:expr),+ $(,)?) => (
-        <$crate::vec::Vec as $crate::core::From>::from($crate::boxed::Box::new_in([$($x),+], $alloc).slice())
+        $crate::vec::Vec::from($crate::boxed::Box::new_in([$($x),+], $alloc).slice())
     );
     () => (
         $crate::vec::Vec::new()
@@ -53,8 +70,6 @@ macro_rules! vec {
         $crate::vec::from_elem($elem, $n)
     );
     ($($x:expr),+ $(,)?) => (
-        <[_]>::into_vec(
-            $crate::boxed::Box::new([$($x),+])
-        )
+        $crate::vec::Vec::from($crate::boxed::Box::new([$($x),+]).slice())
     );
 }

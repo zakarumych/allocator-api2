@@ -3071,10 +3071,20 @@ impl<T, A: Allocator, const N: usize> TryFrom<Vec<T, A>> for [T; N] {
     }
 }
 
+#[inline]
 #[cfg(not(no_global_oom_handling))]
 #[doc(hidden)]
 pub fn from_elem_in<T: Clone, A: Allocator>(elem: T, n: usize, alloc: A) -> Vec<T, A> {
     let mut v = Vec::with_capacity_in(n, alloc);
+    v.extend_with(n, ExtendElement(elem));
+    v
+}
+
+#[inline]
+#[cfg(not(no_global_oom_handling))]
+#[doc(hidden)]
+pub fn from_elem<T: Clone>(elem: T, n: usize) -> Vec<T> {
+    let mut v = Vec::with_capacity(n);
     v.extend_with(n, ExtendElement(elem));
     v
 }
