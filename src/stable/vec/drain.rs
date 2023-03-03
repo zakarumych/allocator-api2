@@ -1,9 +1,10 @@
-use crate::alloc2::{Allocator, Global};
 use core::fmt;
 use core::iter::FusedIterator;
 use core::mem::{self, size_of, ManuallyDrop};
 use core::ptr::{self, NonNull};
 use core::slice::{self};
+
+use crate::stable::alloc::{Allocator, Global};
 
 use super::Vec;
 

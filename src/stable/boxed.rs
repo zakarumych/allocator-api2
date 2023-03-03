@@ -163,12 +163,12 @@ use core::pin::Pin;
 use core::ptr::{self, NonNull};
 use core::task::{Context, Poll};
 
+use super::alloc::{AllocError, Allocator, Global, Layout};
 use super::raw_vec::RawVec;
 #[cfg(not(no_global_oom_handling))]
 use super::vec::Vec;
-use super::{AllocError, Allocator, Global, Layout};
 #[cfg(not(no_global_oom_handling))]
-use alloc::alloc::handle_alloc_error;
+use alloc_crate::alloc::handle_alloc_error;
 #[cfg(not(no_global_oom_handling))]
 
 /// A pointer type for heap allocation.
@@ -909,9 +909,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Recreate a `Box` which was previously converted to a raw pointer
     /// using [`Box::into_raw_with_allocator`]:
     /// ```
-    /// #![feature(allocator_api)]
-    ///
     /// use std::alloc::System;
+    /// # use allocator_api2::boxed::Box;
     ///
     /// let x = Box::new_in(5, System);
     /// let (ptr, alloc) = Box::into_raw_with_allocator(x);
@@ -919,19 +918,18 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// ```
     /// Manually create a `Box` from scratch by using the system allocator:
     /// ```
-    /// #![feature(allocator_api, slice_ptr_get)]
-    ///
-    /// use std::alloc::{Allocator, Layout, System};
+    /// use allocator_api2::alloc::{Allocator, Layout, System};
+    /// # use allocator_api2::boxed::Box;
     ///
     /// unsafe {
-    ///     let ptr = System.allocate(Layout::new::<i32>())?.as_mut_ptr() as *mut i32;
+    ///     let ptr = System.allocate(Layout::new::<i32>())?.as_ptr().cast::<i32>();
     ///     // In general .write is required to avoid attempting to destruct
     ///     // the (uninitialized) previous contents of `ptr`, though for this
     ///     // simple example `*ptr = 5` would have worked as well.
     ///     ptr.write(5);
     ///     let x = Box::from_raw_in(ptr, System);
     /// }
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     ///
     /// [memory layout]: self#memory-layout
@@ -1436,9 +1434,10 @@ impl<A: Allocator> From<Box<str, A>> for Box<[u8], A> {
     }
 }
 
-impl<T, const N: usize> Box<[T; N]> {
-    pub fn slice(self) -> Box<[T]> {
-        unsafe { Box::from_raw(Box::leak(self)) }
+impl<T, A: Allocator, const N: usize> Box<[T; N], A> {
+    pub fn slice(self) -> Box<[T], A> {
+        let (ptr, alloc) = Box::into_raw_with_allocator(self);
+        unsafe { Box::from_raw_in(ptr, alloc) }
     }
 }
 
@@ -1459,8 +1458,8 @@ impl<T, const N: usize> From<[T; N]> for Box<[T]> {
     }
 }
 
-impl<T, const N: usize> TryFrom<Box<[T]>> for Box<[T; N]> {
-    type Error = Box<[T]>;
+impl<T, A: Allocator, const N: usize> TryFrom<Box<[T], A>> for Box<[T; N], A> {
+    type Error = Box<[T], A>;
 
     /// Attempts to convert a `Box<[T]>` into a `Box<[T; N]>`.
     ///
@@ -1471,9 +1470,10 @@ impl<T, const N: usize> TryFrom<Box<[T]>> for Box<[T; N]> {
     ///
     /// Returns the old `Box<[T]>` in the `Err` variant if
     /// `boxed_slice.len()` does not equal `N`.
-    fn try_from(boxed_slice: Box<[T]>) -> Result<Self, Self::Error> {
+    fn try_from(boxed_slice: Box<[T], A>) -> Result<Self, Self::Error> {
         if boxed_slice.len() == N {
-            Ok(unsafe { Box::from_raw(Box::into_raw(boxed_slice) as *mut [T; N]) })
+            let (ptr, alloc) = Box::into_raw_with_allocator(boxed_slice);
+            Ok(unsafe { Box::from_raw_in(ptr as *mut [T; N], alloc) })
         } else {
             Err(boxed_slice)
         }

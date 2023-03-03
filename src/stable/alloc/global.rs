@@ -1,14 +1,11 @@
-pub mod boxed;
-mod raw_vec;
-pub mod vec;
-
 use core::ptr::NonNull;
 
 #[doc(inline)]
-pub use alloc::alloc::{alloc, alloc_zeroed, dealloc, handle_alloc_error, realloc};
+pub use alloc_crate::alloc::{alloc, alloc_zeroed, dealloc, handle_alloc_error, realloc};
 
-#[doc(inline)]
-pub use crate::core2::*;
+use crate::stable::assume;
+
+use super::{AllocError, Allocator, Layout};
 
 /// The global memory allocator.
 ///
@@ -187,20 +184,5 @@ unsafe impl Allocator for Global {
                 Ok(new_ptr)
             },
         }
-    }
-}
-
-#[track_caller]
-#[cfg(debug_assertions)]
-unsafe fn assume(v: bool) {
-    if !v {
-        core::unreachable!()
-    }
-}
-
-#[cfg(not(debug_assertions))]
-unsafe fn assume(v: bool) {
-    if !v {
-        core::hint::unreachable_unchecked()
     }
 }

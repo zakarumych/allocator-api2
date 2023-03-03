@@ -5,10 +5,14 @@ use core::ptr::{self, NonNull};
 use core::slice;
 use core::{cmp, fmt};
 
-#[cfg(not(no_global_oom_handling))]
-use alloc::alloc::handle_alloc_error;
+use super::{
+    alloc::{Allocator, Global, Layout},
+    assume,
+    boxed::Box,
+};
 
-use super::{assume, boxed::Box, Allocator, Global, Layout};
+#[cfg(not(no_global_oom_handling))]
+use super::alloc::handle_alloc_error;
 
 /// The error type for `try_reserve` methods.
 #[derive(Clone, PartialEq, Eq, Debug)]

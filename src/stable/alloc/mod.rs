@@ -5,7 +5,25 @@ use core::{
     ptr::{self, NonNull},
 };
 
+#[cfg(feature = "alloc")]
+mod global;
+
+#[cfg(feature = "std")]
+mod system;
+
 pub use core::alloc::{GlobalAlloc, Layout, LayoutError};
+
+#[cfg(feature = "alloc")]
+pub use self::global::Global;
+
+#[cfg(feature = "std")]
+pub use self::system::System;
+
+#[cfg(feature = "alloc")]
+pub use alloc_crate::alloc::{alloc, alloc_zeroed, dealloc, realloc};
+
+#[cfg(all(feature = "alloc", not(no_global_oom_handling)))]
+pub use alloc_crate::alloc::handle_alloc_error;
 
 /// The `AllocError` error indicates an allocation failure
 /// that may be due to resource exhaustion or to

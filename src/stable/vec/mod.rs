@@ -67,12 +67,11 @@ use core::ptr::{self, NonNull};
 use core::slice::{self, SliceIndex};
 
 use super::{
+    alloc::{Allocator, Global},
     assume,
     boxed::Box,
     raw_vec::{RawVec, TryReserveError},
-    Global,
 };
-use crate::core2::Allocator;
 
 #[cfg(not(no_global_oom_handling))]
 pub use self::splice::Splice;
@@ -343,7 +342,7 @@ mod set_len_on_drop;
 ///
 /// [`get`]: ../../std/vec/struct.Vec.html#method.get
 /// [`get_mut`]: ../../std/vec/struct.Vec.html#method.get_mut
-/// [`String`]: crate::string::String
+/// [`String`]: alloc_crate::string::String
 /// [`&str`]: type@str
 /// [`shrink_to_fit`]: Vec::shrink_to_fit
 /// [`shrink_to`]: Vec::shrink_to
@@ -485,7 +484,7 @@ impl<T> Vec<T> {
     /// that nothing else uses the pointer after calling this
     /// function.
     ///
-    /// [`String`]: crate::string::String
+    /// [`String`]: alloc_crate::string::String
     /// [`dealloc`]: crate::alloc::GlobalAlloc::dealloc
     ///
     /// # Examples
@@ -557,8 +556,6 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api)]
-    ///
     /// use std::alloc::System;
     ///
     /// # #[allow(unused_mut)]
@@ -600,8 +597,6 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api)]
-    ///
     /// use std::alloc::System;
     ///
     /// let mut vec = Vec::with_capacity_in(10, System);
@@ -675,20 +670,20 @@ impl<T, A: Allocator> Vec<T, A> {
     /// that nothing else uses the pointer after calling this
     /// function.
     ///
-    /// [`String`]: crate::string::String
+    /// [`String`]: alloc_crate::string::String
     /// [`dealloc`]: crate::alloc::GlobalAlloc::dealloc
     /// [*fit*]: crate::alloc::Allocator#memory-fitting
     ///
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api)]
-    ///
     /// use std::alloc::System;
     ///
     /// use std::ptr;
     /// use std::mem;
     ///
+    ///
+    /// # use allocator_api2::vec::Vec;
     /// let mut v = Vec::with_capacity_in(3, System);
     /// v.push(1);
     /// v.push(2);
@@ -1439,7 +1434,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// [`VecDeque::pop_front`] instead.
     ///
     /// [`swap_remove`]: Vec::swap_remove
-    /// [`VecDeque::pop_front`]: crate::collections::VecDeque::pop_front
+    /// [`VecDeque::pop_front`]: alloc_crate::collections::VecDeque::pop_front
     ///
     /// # Panics
     ///
@@ -1850,7 +1845,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// If you'd like to pop the first element, consider using
     /// [`VecDeque::pop_front`] instead.
     ///
-    /// [`VecDeque::pop_front`]: crate::collections::VecDeque::pop_front
+    /// [`VecDeque::pop_front`]: alloc_crate::collections::VecDeque::pop_front
     ///
     /// # Examples
     ///
@@ -2971,6 +2966,24 @@ impl<T, A: Allocator> From<Box<[T], A>> for Vec<T, A> {
     }
 }
 
+impl<T, A: Allocator, const N: usize> From<Box<[T; N], A>> for Vec<T, A> {
+    /// Convert a boxed array into a vector by transferring ownership of
+    /// the existing heap allocation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let b: Box<[i32; 3]> = Box::new([1, 2, 3]);
+    /// assert_eq!(Vec::from(b), vec![1, 2, 3]);
+    /// ```
+    fn from(s: Box<[T; N], A>) -> Self {
+        unsafe {
+            let (ptr, alloc) = Box::into_raw_with_allocator(s);
+            Vec::from_raw_parts_in(ptr.cast(), N, N, alloc)
+        }
+    }
+}
+
 // note: test pulls in libstd, which causes errors here
 #[cfg(not(no_global_oom_handling))]
 impl<T, A: Allocator> From<Vec<T, A>> for Box<[T], A> {
@@ -3056,4 +3069,12 @@ impl<T, A: Allocator, const N: usize> TryFrom<Vec<T, A>> for [T; N] {
         let array = unsafe { ptr::read(vec.as_ptr() as *const [T; N]) };
         Ok(array)
     }
+}
+
+#[cfg(not(no_global_oom_handling))]
+#[doc(hidden)]
+pub fn from_elem_in<T: Clone, A: Allocator>(elem: T, n: usize, alloc: A) -> Vec<T, A> {
+    let mut v = Vec::with_capacity_in(n, alloc);
+    v.extend_with(n, ExtendElement(elem));
+    v
 }
