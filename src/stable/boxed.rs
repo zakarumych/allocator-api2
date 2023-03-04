@@ -1156,21 +1156,21 @@ impl<T: Default> Default for Box<T> {
     }
 }
 
-impl<T> Default for Box<[T]> {
+impl<T, A: Allocator + Default> Default for Box<[T], A> {
     fn default() -> Self {
         let ptr: NonNull<[T]> = NonNull::<[T; 0]>::dangling();
-        Box(ptr, Global)
+        Box(ptr, A::default())
     }
 }
 
-impl Default for Box<str> {
+impl<A: Allocator + Default> Default for Box<str, A> {
     fn default() -> Self {
         // SAFETY: This is the same as `Unique::cast<U>` but with an unsized `U = str`.
         let ptr: NonNull<str> = unsafe {
             let bytes: NonNull<[u8]> = NonNull::<[u8; 0]>::dangling();
             NonNull::new_unchecked(bytes.as_ptr() as *mut str)
         };
-        Box(ptr, Global)
+        Box(ptr, A::default())
     }
 }
 
@@ -1367,7 +1367,7 @@ where
 }
 
 #[cfg(not(no_global_oom_handling))]
-impl<T: Copy> From<&[T]> for Box<[T]> {
+impl<T: Copy, A: Allocator + Default> From<&[T]> for Box<[T], A> {
     /// Converts a `&[T]` into a `Box<[T]>`
     ///
     /// This conversion allocates on the heap
@@ -1381,9 +1381,9 @@ impl<T: Copy> From<&[T]> for Box<[T]> {
     ///
     /// println!("{boxed_slice:?}");
     /// ```
-    fn from(slice: &[T]) -> Box<[T]> {
+    fn from(slice: &[T]) -> Box<[T], A> {
         let len = slice.len();
-        let buf = RawVec::with_capacity(len);
+        let buf = RawVec::with_capacity_in(len, A::default());
         unsafe {
             ptr::copy_nonoverlapping(slice.as_ptr(), buf.ptr(), len);
             buf.into_box(slice.len()).assume_init()
@@ -1392,7 +1392,7 @@ impl<T: Copy> From<&[T]> for Box<[T]> {
 }
 
 #[cfg(not(no_global_oom_handling))]
-impl From<&str> for Box<str> {
+impl<A: Allocator + Default> From<&str> for Box<str, A> {
     /// Converts a `&str` into a `Box<str>`
     ///
     /// This conversion allocates on the heap
@@ -1405,8 +1405,9 @@ impl From<&str> for Box<str> {
     /// println!("{boxed}");
     /// ```
     #[inline]
-    fn from(s: &str) -> Box<str> {
-        unsafe { Box::from_raw(Box::into_raw(Box::<[u8]>::from(s.as_bytes())) as *mut str) }
+    fn from(s: &str) -> Box<str, A> {
+        let (raw, alloc) = Box::into_raw_with_allocator(Box::<[u8], A>::from(s.as_bytes()));
+        unsafe { Box::from_raw_in(raw as *mut str, alloc) }
     }
 }
 
