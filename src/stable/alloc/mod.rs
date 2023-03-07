@@ -361,23 +361,23 @@ unsafe impl<A> Allocator for &A
 where
     A: Allocator + ?Sized,
 {
-    #[inline]
+    #[inline(always)]
     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         (**self).allocate(layout)
     }
 
-    #[inline]
+    #[inline(always)]
     fn allocate_zeroed(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         (**self).allocate_zeroed(layout)
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn deallocate(&self, ptr: NonNull<u8>, layout: Layout) {
         // SAFETY: the safety contract must be upheld by the caller
         unsafe { (**self).deallocate(ptr, layout) }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn grow(
         &self,
         ptr: NonNull<u8>,
@@ -388,7 +388,7 @@ where
         unsafe { (**self).grow(ptr, old_layout, new_layout) }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn grow_zeroed(
         &self,
         ptr: NonNull<u8>,
@@ -399,7 +399,7 @@ where
         unsafe { (**self).grow_zeroed(ptr, old_layout, new_layout) }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn shrink(
         &self,
         ptr: NonNull<u8>,

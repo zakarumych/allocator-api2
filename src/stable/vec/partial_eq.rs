@@ -12,9 +12,9 @@ macro_rules! __impl_slice_eq1 {
             T: PartialEq<U>,
             $($ty: $bound)?
         {
-            #[inline]
+            #[inline(always)]
             fn eq(&self, other: &$rhs) -> bool { self[..] == other[..] }
-            #[inline]
+            #[inline(always)]
             fn ne(&self, other: &$rhs) -> bool { self[..] != other[..] }
         }
     }

@@ -213,7 +213,7 @@ impl<T> Box<T> {
     /// ```
     #[cfg(not(no_global_oom_handling))]
     #[must_use]
-    #[inline]
+    #[inline(always)]
     pub fn new_uninit() -> Box<mem::MaybeUninit<T>> {
         Self::new_uninit_in(Global)
     }
@@ -237,8 +237,8 @@ impl<T> Box<T> {
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
     #[cfg(not(no_global_oom_handling))]
-    #[inline]
     #[must_use]
+    #[inline(always)]
     pub fn new_zeroed() -> Box<mem::MaybeUninit<T>> {
         Self::new_zeroed_in(Global)
     }
@@ -270,7 +270,7 @@ impl<T> Box<T> {
     /// let five = Box::try_new(5)?;
     /// # Ok::<(), std::alloc::AllocError>(())
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn try_new(x: T) -> Result<Self, AllocError> {
         Self::try_new_in(x, Global)
     }
@@ -295,7 +295,7 @@ impl<T> Box<T> {
     /// assert_eq!(*five, 5);
     /// # Ok::<(), std::alloc::AllocError>(())
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn try_new_uninit() -> Result<Box<mem::MaybeUninit<T>>, AllocError> {
         Box::try_new_uninit_in(Global)
     }
@@ -319,7 +319,7 @@ impl<T> Box<T> {
     /// ```
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
-    #[inline]
+    #[inline(always)]
     pub fn try_new_zeroed() -> Result<Box<mem::MaybeUninit<T>>, AllocError> {
         Box::try_new_zeroed_in(Global)
     }
@@ -341,7 +341,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// ```
     #[cfg(not(no_global_oom_handling))]
     #[must_use]
-    #[inline]
+    #[inline(always)]
     pub fn new_in(x: T, alloc: A) -> Self
     where
         A: Allocator,
@@ -368,7 +368,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// let five = Box::try_new_in(5, System)?;
     /// # Ok::<(), std::alloc::AllocError>(())
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn try_new_in(x: T, alloc: A) -> Result<Self, AllocError>
     where
         A: Allocator,
@@ -403,6 +403,7 @@ impl<T, A: Allocator> Box<T, A> {
     #[cfg(not(no_global_oom_handling))]
     #[must_use]
     // #[unstable(feature = "new_uninit", issue = "63291")]
+    #[inline(always)]
     pub fn new_uninit_in(alloc: A) -> Box<mem::MaybeUninit<T>, A>
     where
         A: Allocator,
@@ -438,6 +439,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// assert_eq!(*five, 5);
     /// # Ok::<(), std::alloc::AllocError>(())
     /// ```
+    #[inline(always)]
     pub fn try_new_uninit_in(alloc: A) -> Result<Box<mem::MaybeUninit<T>, A>, AllocError>
     where
         A: Allocator,
@@ -470,6 +472,7 @@ impl<T, A: Allocator> Box<T, A> {
     #[cfg(not(no_global_oom_handling))]
     // #[unstable(feature = "new_uninit", issue = "63291")]
     #[must_use]
+    #[inline(always)]
     pub fn new_zeroed_in(alloc: A) -> Box<mem::MaybeUninit<T>, A>
     where
         A: Allocator,
@@ -505,6 +508,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// ```
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
+    #[inline(always)]
     pub fn try_new_zeroed_in(alloc: A) -> Result<Box<mem::MaybeUninit<T>, A>, AllocError>
     where
         A: Allocator,
@@ -534,6 +538,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// Converts a `Box<T>` into a `Box<[T]>`
     ///
     /// This conversion does not allocate on the heap and happens in place.
+    #[inline(always)]
     pub fn into_boxed_slice(boxed: Self) -> Box<[T], A> {
         let (raw, alloc) = Box::into_raw_with_allocator(boxed);
         unsafe { Box::from_raw_in(raw as *mut [T; 1], alloc) }
@@ -550,7 +555,7 @@ impl<T, A: Allocator> Box<T, A> {
     ///
     /// assert_eq!(Box::into_inner(c), 5);
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn into_inner(boxed: Self) -> T {
         let ptr = boxed.0;
         let unboxed = unsafe { ptr.as_ptr().read() };
@@ -582,6 +587,7 @@ impl<T> Box<[T]> {
     /// ```
     #[cfg(not(no_global_oom_handling))]
     #[must_use]
+    #[inline(always)]
     pub fn new_uninit_slice(len: usize) -> Box<[mem::MaybeUninit<T>]> {
         unsafe { RawVec::with_capacity(len).into_box(len) }
     }
@@ -606,6 +612,7 @@ impl<T> Box<[T]> {
     /// [zeroed]: mem::MaybeUninit::zeroed
     #[cfg(not(no_global_oom_handling))]
     #[must_use]
+    #[inline(always)]
     pub fn new_zeroed_slice(len: usize) -> Box<[mem::MaybeUninit<T>]> {
         unsafe { RawVec::with_capacity_zeroed(len).into_box(len) }
     }
@@ -630,7 +637,7 @@ impl<T> Box<[T]> {
     /// assert_eq!(*values, [1, 2, 3]);
     /// # Ok::<(), std::alloc::AllocError>(())
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn try_new_uninit_slice(len: usize) -> Result<Box<[mem::MaybeUninit<T>]>, AllocError> {
         unsafe {
             let layout = match Layout::array::<mem::MaybeUninit<T>>(len) {
@@ -661,7 +668,7 @@ impl<T> Box<[T]> {
     /// ```
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
-    #[inline]
+    #[inline(always)]
     pub fn try_new_zeroed_slice(len: usize) -> Result<Box<[mem::MaybeUninit<T>]>, AllocError> {
         unsafe {
             let layout = match Layout::array::<mem::MaybeUninit<T>>(len) {
@@ -699,6 +706,7 @@ impl<T, A: Allocator> Box<[T], A> {
     /// ```
     #[cfg(not(no_global_oom_handling))]
     #[must_use]
+    #[inline(always)]
     pub fn new_uninit_slice_in(len: usize, alloc: A) -> Box<[mem::MaybeUninit<T>], A> {
         unsafe { RawVec::with_capacity_in(len, alloc).into_box(len) }
     }
@@ -725,6 +733,7 @@ impl<T, A: Allocator> Box<[T], A> {
     /// [zeroed]: mem::MaybeUninit::zeroed
     #[cfg(not(no_global_oom_handling))]
     #[must_use]
+    #[inline(always)]
     pub fn new_zeroed_slice_in(len: usize, alloc: A) -> Box<[mem::MaybeUninit<T>], A> {
         unsafe { RawVec::with_capacity_zeroed_in(len, alloc).into_box(len) }
     }
@@ -759,7 +768,7 @@ impl<T, A: Allocator> Box<mem::MaybeUninit<T>, A> {
     ///
     /// assert_eq!(*five, 5)
     /// ```
-    #[inline]
+    #[inline(always)]
     pub unsafe fn assume_init(self) -> Box<T, A> {
         let (raw, alloc) = Box::into_raw_with_allocator(self);
         unsafe { Box::from_raw_in(raw as *mut T, alloc) }
@@ -792,7 +801,7 @@ impl<T, A: Allocator> Box<mem::MaybeUninit<T>, A> {
     ///     assert_eq!(*x, i);
     /// }
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn write(mut boxed: Self, value: T) -> Box<T, A> {
         unsafe {
             (*boxed).write(value);
@@ -832,7 +841,7 @@ impl<T, A: Allocator> Box<[mem::MaybeUninit<T>], A> {
     ///
     /// assert_eq!(*values, [1, 2, 3])
     /// ```
-    #[inline]
+    #[inline(always)]
     pub unsafe fn assume_init(self) -> Box<[T], A> {
         let (raw, alloc) = Box::into_raw_with_allocator(self);
         unsafe { Box::from_raw_in(raw as *mut [T], alloc) }
@@ -881,8 +890,8 @@ impl<T: ?Sized> Box<T> {
     ///
     /// [memory layout]: self#memory-layout
     /// [`Layout`]: crate::Layout
-    #[inline]
     #[must_use = "call `drop(from_raw(ptr))` if you intend to drop the `Box`"]
+    #[inline(always)]
     pub unsafe fn from_raw(raw: *mut T) -> Self {
         unsafe { Self::from_raw_in(raw, Global) }
     }
@@ -934,7 +943,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     ///
     /// [memory layout]: self#memory-layout
     /// [`Layout`]: crate::Layout
-    #[inline]
+    #[inline(always)]
     pub const unsafe fn from_raw_in(raw: *mut T, alloc: A) -> Self {
         Box(unsafe { NonNull::new_unchecked(raw) }, alloc)
     }
@@ -978,7 +987,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// ```
     ///
     /// [memory layout]: self#memory-layout
-    #[inline]
+    #[inline(always)]
     pub fn into_raw(b: Self) -> *mut T {
         Self::into_raw_with_allocator(b).0
     }
@@ -1029,12 +1038,13 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// ```
     ///
     /// [memory layout]: self#memory-layout
-    #[inline]
+    #[inline(always)]
     pub fn into_raw_with_allocator(b: Self) -> (*mut T, A) {
         let (leaked, alloc) = Box::into_non_null(b);
         (leaked.as_ptr(), alloc)
     }
 
+    #[inline(always)]
     pub fn into_non_null(b: Self) -> (NonNull<T>, A) {
         // Box is recognized as a "unique pointer" by Stacked Borrows, but internally it is a
         // raw pointer for the type system. Turning it directly into a raw pointer would not be
@@ -1050,7 +1060,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Note: this is an associated function, which means that you have
     /// to call it as `Box::allocator(&b)` instead of `b.allocator()`. This
     /// is so that there is no conflict with a method on the inner type.
-    #[inline]
+    #[inline(always)]
     pub const fn allocator(b: &Self) -> &A {
         &b.1
     }
@@ -1090,7 +1100,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// static_ref[0] = 4;
     /// assert_eq!(*static_ref, [4, 2, 3]);
     /// ```
-    #[inline]
+    #[inline(always)]
     fn leak<'a>(b: Self) -> &'a mut T
     where
         A: 'a,
@@ -1128,6 +1138,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// let foo = Box::new(());
     /// let bar = Pin::from(foo);
     /// ```
+    #[inline(always)]
     pub fn into_pin(boxed: Self) -> Pin<Self>
     where
         A: 'static,
@@ -1140,6 +1151,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
 }
 
 impl<T: ?Sized, A: Allocator> Drop for Box<T, A> {
+    #[inline(always)]
     fn drop(&mut self) {
         let layout = Layout::for_value::<T>(&**self);
         unsafe {
@@ -1151,12 +1163,14 @@ impl<T: ?Sized, A: Allocator> Drop for Box<T, A> {
 #[cfg(not(no_global_oom_handling))]
 impl<T: Default> Default for Box<T> {
     /// Creates a `Box<T>`, with the `Default` value for T.
+    #[inline(always)]
     fn default() -> Self {
         Box::new(T::default())
     }
 }
 
 impl<T, A: Allocator + Default> Default for Box<[T], A> {
+    #[inline(always)]
     fn default() -> Self {
         let ptr: NonNull<[T]> = NonNull::<[T; 0]>::dangling();
         Box(ptr, A::default())
@@ -1164,6 +1178,7 @@ impl<T, A: Allocator + Default> Default for Box<[T], A> {
 }
 
 impl<A: Allocator + Default> Default for Box<str, A> {
+    #[inline(always)]
     fn default() -> Self {
         // SAFETY: This is the same as `Unique::cast<U>` but with an unsized `U = str`.
         let ptr: NonNull<str> = unsafe {
@@ -1190,7 +1205,7 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<T, A> {
     /// // But they are unique objects
     /// assert_ne!(&*x as *const i32, &*y as *const i32);
     /// ```
-    #[inline]
+    #[inline(always)]
     fn clone(&self) -> Self {
         // Pre-allocate memory to allow writing the cloned value directly.
         let mut boxed = Self::new_uninit_in(self.1.clone());
@@ -1217,7 +1232,7 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<T, A> {
     /// // And no allocation occurred
     /// assert_eq!(yp, &*y);
     /// ```
-    #[inline]
+    #[inline(always)]
     fn clone_from(&mut self, source: &Self) {
         (**self).clone_from(&(**source));
     }
@@ -1225,6 +1240,7 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<T, A> {
 
 #[cfg(not(no_global_oom_handling))]
 impl Clone for Box<str> {
+    #[inline(always)]
     fn clone(&self) -> Self {
         // this makes a copy of the data
         let buf: Box<[u8]> = self.as_bytes().into();
@@ -1233,41 +1249,41 @@ impl Clone for Box<str> {
 }
 
 impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for Box<T, A> {
-    #[inline]
+    #[inline(always)]
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(&**self, &**other)
     }
-    #[inline]
+    #[inline(always)]
     fn ne(&self, other: &Self) -> bool {
         PartialEq::ne(&**self, &**other)
     }
 }
 
 impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for Box<T, A> {
-    #[inline]
+    #[inline(always)]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         PartialOrd::partial_cmp(&**self, &**other)
     }
-    #[inline]
+    #[inline(always)]
     fn lt(&self, other: &Self) -> bool {
         PartialOrd::lt(&**self, &**other)
     }
-    #[inline]
+    #[inline(always)]
     fn le(&self, other: &Self) -> bool {
         PartialOrd::le(&**self, &**other)
     }
-    #[inline]
+    #[inline(always)]
     fn ge(&self, other: &Self) -> bool {
         PartialOrd::ge(&**self, &**other)
     }
-    #[inline]
+    #[inline(always)]
     fn gt(&self, other: &Self) -> bool {
         PartialOrd::gt(&**self, &**other)
     }
 }
 
 impl<T: ?Sized + Ord, A: Allocator> Ord for Box<T, A> {
-    #[inline]
+    #[inline(always)]
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(&**self, &**other)
     }
@@ -1276,51 +1292,66 @@ impl<T: ?Sized + Ord, A: Allocator> Ord for Box<T, A> {
 impl<T: ?Sized + Eq, A: Allocator> Eq for Box<T, A> {}
 
 impl<T: ?Sized + Hash, A: Allocator> Hash for Box<T, A> {
+    #[inline(always)]
     fn hash<H: Hasher>(&self, state: &mut H) {
         (**self).hash(state);
     }
 }
 
 impl<T: ?Sized + Hasher, A: Allocator> Hasher for Box<T, A> {
+    #[inline(always)]
     fn finish(&self) -> u64 {
         (**self).finish()
     }
+    #[inline(always)]
     fn write(&mut self, bytes: &[u8]) {
         (**self).write(bytes)
     }
+    #[inline(always)]
     fn write_u8(&mut self, i: u8) {
         (**self).write_u8(i)
     }
+    #[inline(always)]
     fn write_u16(&mut self, i: u16) {
         (**self).write_u16(i)
     }
+    #[inline(always)]
     fn write_u32(&mut self, i: u32) {
         (**self).write_u32(i)
     }
+    #[inline(always)]
     fn write_u64(&mut self, i: u64) {
         (**self).write_u64(i)
     }
+    #[inline(always)]
     fn write_u128(&mut self, i: u128) {
         (**self).write_u128(i)
     }
+    #[inline(always)]
     fn write_usize(&mut self, i: usize) {
         (**self).write_usize(i)
     }
+    #[inline(always)]
     fn write_i8(&mut self, i: i8) {
         (**self).write_i8(i)
     }
+    #[inline(always)]
     fn write_i16(&mut self, i: i16) {
         (**self).write_i16(i)
     }
+    #[inline(always)]
     fn write_i32(&mut self, i: i32) {
         (**self).write_i32(i)
     }
+    #[inline(always)]
     fn write_i64(&mut self, i: i64) {
         (**self).write_i64(i)
     }
+    #[inline(always)]
     fn write_i128(&mut self, i: i128) {
         (**self).write_i128(i)
     }
+    #[inline(always)]
     fn write_isize(&mut self, i: isize) {
         (**self).write_isize(i)
     }
@@ -1341,6 +1372,7 @@ impl<T> From<T> for Box<T> {
     ///
     /// assert_eq!(Box::from(x), boxed);
     /// ```
+    #[inline(always)]
     fn from(t: T) -> Self {
         Box::new(t)
     }
@@ -1361,6 +1393,7 @@ where
     /// can also be written more concisely using <code>[Box::pin]\(x)</code>.
     /// This `From` implementation is useful if you already have a `Box<T>`, or you are
     /// constructing a (pinned) `Box` in a different way than with [`Box::new`].
+    #[inline(always)]
     fn from(boxed: Box<T, A>) -> Self {
         Box::into_pin(boxed)
     }
@@ -1381,6 +1414,7 @@ impl<T: Copy, A: Allocator + Default> From<&[T]> for Box<[T], A> {
     ///
     /// println!("{boxed_slice:?}");
     /// ```
+    #[inline(always)]
     fn from(slice: &[T]) -> Box<[T], A> {
         let len = slice.len();
         let buf = RawVec::with_capacity_in(len, A::default());
@@ -1404,7 +1438,7 @@ impl<A: Allocator + Default> From<&str> for Box<str, A> {
     /// let boxed: Box<str> = Box::from("hello");
     /// println!("{boxed}");
     /// ```
-    #[inline]
+    #[inline(always)]
     fn from(s: &str) -> Box<str, A> {
         let (raw, alloc) = Box::into_raw_with_allocator(Box::<[u8], A>::from(s.as_bytes()));
         unsafe { Box::from_raw_in(raw as *mut str, alloc) }
@@ -1428,7 +1462,7 @@ impl<A: Allocator> From<Box<str, A>> for Box<[u8], A> {
     ///
     /// assert_eq!(boxed_slice, boxed_str);
     /// ```
-    #[inline]
+    #[inline(always)]
     fn from(s: Box<str, A>) -> Self {
         let (raw, alloc) = Box::into_raw_with_allocator(s);
         unsafe { Box::from_raw_in(raw as *mut [u8], alloc) }
@@ -1436,6 +1470,7 @@ impl<A: Allocator> From<Box<str, A>> for Box<[u8], A> {
 }
 
 impl<T, A: Allocator, const N: usize> Box<[T; N], A> {
+    #[inline(always)]
     pub fn slice(self) -> Box<[T], A> {
         let (ptr, alloc) = Box::into_raw_with_allocator(self);
         unsafe { Box::from_raw_in(ptr, alloc) }
@@ -1454,6 +1489,7 @@ impl<T, const N: usize> From<[T; N]> for Box<[T]> {
     /// let boxed: Box<[u8]> = Box::from([4, 2]);
     /// println!("{boxed:?}");
     /// ```
+    #[inline(always)]
     fn from(array: [T; N]) -> Box<[T]> {
         Box::new(array).slice()
     }
@@ -1471,6 +1507,7 @@ impl<T, A: Allocator, const N: usize> TryFrom<Box<[T], A>> for Box<[T; N], A> {
     ///
     /// Returns the old `Box<[T]>` in the `Err` variant if
     /// `boxed_slice.len()` does not equal `N`.
+    #[inline(always)]
     fn try_from(boxed_slice: Box<[T], A>) -> Result<Self, Self::Error> {
         if boxed_slice.len() == N {
             let (ptr, alloc) = Box::into_raw_with_allocator(boxed_slice);
@@ -1499,7 +1536,7 @@ impl<A: Allocator> Box<dyn Any, A> {
     /// print_if_string(Box::new(my_string));
     /// print_if_string(Box::new(0i8));
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn downcast<T: Any>(self) -> Result<Box<T, A>, Self> {
         if self.is::<T>() {
             unsafe { Ok(self.downcast_unchecked::<T>()) }
@@ -1532,7 +1569,7 @@ impl<A: Allocator> Box<dyn Any, A> {
     /// with the incorrect type is *undefined behavior*.
     ///
     /// [`downcast`]: Self::downcast
-    #[inline]
+    #[inline(always)]
     pub unsafe fn downcast_unchecked<T: Any>(self) -> Box<T, A> {
         debug_assert!(self.is::<T>());
         unsafe {
@@ -1560,7 +1597,7 @@ impl<A: Allocator> Box<dyn Any + Send, A> {
     /// print_if_string(Box::new(my_string));
     /// print_if_string(Box::new(0i8));
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn downcast<T: Any>(self) -> Result<Box<T, A>, Self> {
         if self.is::<T>() {
             unsafe { Ok(self.downcast_unchecked::<T>()) }
@@ -1593,7 +1630,7 @@ impl<A: Allocator> Box<dyn Any + Send, A> {
     /// with the incorrect type is *undefined behavior*.
     ///
     /// [`downcast`]: Self::downcast
-    #[inline]
+    #[inline(always)]
     pub unsafe fn downcast_unchecked<T: Any>(self) -> Box<T, A> {
         debug_assert!(self.is::<T>());
         unsafe {
@@ -1621,7 +1658,7 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
     /// print_if_string(Box::new(my_string));
     /// print_if_string(Box::new(0i8));
     /// ```
-    #[inline]
+    #[inline(always)]
     pub fn downcast<T: Any>(self) -> Result<Box<T, A>, Self> {
         if self.is::<T>() {
             unsafe { Ok(self.downcast_unchecked::<T>()) }
@@ -1654,7 +1691,7 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
     /// with the incorrect type is *undefined behavior*.
     ///
     /// [`downcast`]: Self::downcast
-    #[inline]
+    #[inline(always)]
     pub unsafe fn downcast_unchecked<T: Any>(self) -> Box<T, A> {
         debug_assert!(self.is::<T>());
         unsafe {
@@ -1666,18 +1703,21 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
 }
 
 impl<T: fmt::Display + ?Sized, A: Allocator> fmt::Display for Box<T, A> {
+    #[inline(always)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Display::fmt(&**self, f)
     }
 }
 
 impl<T: fmt::Debug + ?Sized, A: Allocator> fmt::Debug for Box<T, A> {
+    #[inline(always)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Debug::fmt(&**self, f)
     }
 }
 
 impl<T: ?Sized, A: Allocator> fmt::Pointer for Box<T, A> {
+    #[inline(always)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // It's not possible to extract the inner Uniq directly from the Box,
         // instead we cast it to a *const which aliases the Unique
@@ -1689,12 +1729,14 @@ impl<T: ?Sized, A: Allocator> fmt::Pointer for Box<T, A> {
 impl<T: ?Sized, A: Allocator> Deref for Box<T, A> {
     type Target = T;
 
+    #[inline(always)]
     fn deref(&self) -> &T {
         unsafe { self.0.as_ref() }
     }
 }
 
 impl<T: ?Sized, A: Allocator> DerefMut for Box<T, A> {
+    #[inline(always)]
     fn deref_mut(&mut self) -> &mut T {
         unsafe { self.0.as_mut() }
     }
@@ -1702,15 +1744,23 @@ impl<T: ?Sized, A: Allocator> DerefMut for Box<T, A> {
 
 impl<I: Iterator + ?Sized, A: Allocator> Iterator for Box<I, A> {
     type Item = I::Item;
+
+    #[inline(always)]
     fn next(&mut self) -> Option<I::Item> {
         (**self).next()
     }
+
+    #[inline(always)]
     fn size_hint(&self) -> (usize, Option<usize>) {
         (**self).size_hint()
     }
+
+    #[inline(always)]
     fn nth(&mut self, n: usize) -> Option<I::Item> {
         (**self).nth(n)
     }
+
+    #[inline(always)]
     fn last(self) -> Option<I::Item> {
         BoxIter::last(self)
     }
@@ -1723,8 +1773,10 @@ trait BoxIter {
 
 impl<I: Iterator + ?Sized, A: Allocator> BoxIter for Box<I, A> {
     type Item = I::Item;
+
+    #[inline(always)]
     fn last(self) -> Option<I::Item> {
-        #[inline]
+        #[inline(always)]
         fn some<T>(_: Option<T>, x: T) -> Option<T> {
             Some(x)
         }
@@ -1734,15 +1786,18 @@ impl<I: Iterator + ?Sized, A: Allocator> BoxIter for Box<I, A> {
 }
 
 impl<I: DoubleEndedIterator + ?Sized, A: Allocator> DoubleEndedIterator for Box<I, A> {
+    #[inline(always)]
     fn next_back(&mut self) -> Option<I::Item> {
         (**self).next_back()
     }
+    #[inline(always)]
     fn nth_back(&mut self, n: usize) -> Option<I::Item> {
         (**self).nth_back(n)
     }
 }
 
 impl<I: ExactSizeIterator + ?Sized, A: Allocator> ExactSizeIterator for Box<I, A> {
+    #[inline(always)]
     fn len(&self) -> usize {
         (**self).len()
     }
@@ -1752,6 +1807,7 @@ impl<I: FusedIterator + ?Sized, A: Allocator> FusedIterator for Box<I, A> {}
 
 #[cfg(not(no_global_oom_handling))]
 impl<I> FromIterator<I> for Box<[I]> {
+    #[inline(always)]
     fn from_iter<T: IntoIterator<Item = I>>(iter: T) -> Self {
         iter.into_iter().collect::<Vec<_>>().into_boxed_slice()
     }
@@ -1759,6 +1815,7 @@ impl<I> FromIterator<I> for Box<[I]> {
 
 #[cfg(not(no_global_oom_handling))]
 impl<T: Clone, A: Allocator + Clone> Clone for Box<[T], A> {
+    #[inline(always)]
     fn clone(&self) -> Self {
         let alloc = Box::allocator(self).clone();
         let mut vec = Vec::with_capacity_in(self.len(), alloc);
@@ -1766,6 +1823,7 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<[T], A> {
         vec.into_boxed_slice()
     }
 
+    #[inline(always)]
     fn clone_from(&mut self, other: &Self) {
         if self.len() == other.len() {
             self.clone_from_slice(&other);
@@ -1776,24 +1834,28 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<[T], A> {
 }
 
 impl<T: ?Sized, A: Allocator> borrow::Borrow<T> for Box<T, A> {
+    #[inline(always)]
     fn borrow(&self) -> &T {
         &**self
     }
 }
 
 impl<T: ?Sized, A: Allocator> borrow::BorrowMut<T> for Box<T, A> {
+    #[inline(always)]
     fn borrow_mut(&mut self) -> &mut T {
         &mut **self
     }
 }
 
 impl<T: ?Sized, A: Allocator> AsRef<T> for Box<T, A> {
+    #[inline(always)]
     fn as_ref(&self) -> &T {
         &**self
     }
 }
 
 impl<T: ?Sized, A: Allocator> AsMut<T> for Box<T, A> {
+    #[inline(always)]
     fn as_mut(&mut self) -> &mut T {
         &mut **self
     }
@@ -1829,6 +1891,7 @@ where
 {
     type Output = F::Output;
 
+    #[inline(always)]
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         F::poll(Pin::new(&mut *self), cx)
     }
@@ -1867,6 +1930,7 @@ mod error {
         /// let a_boxed_error = Box::<dyn Error>::from(an_error);
         /// assert!(mem::size_of::<Box<dyn Error>>() == mem::size_of_val(&a_boxed_error))
         /// ```
+        #[inline(always)]
         fn from(err: E) -> Box<dyn Error + 'a> {
             unsafe { Box::from_raw(Box::leak(Box::new(err))) }
         }
@@ -1905,12 +1969,14 @@ mod error {
         /// assert!(
         ///     mem::size_of::<Box<dyn Error + Send + Sync>>() == mem::size_of_val(&a_boxed_error))
         /// ```
+        #[inline(always)]
         fn from(err: E) -> Box<dyn Error + Send + Sync + 'a> {
             unsafe { Box::from_raw(Box::leak(Box::new(err))) }
         }
     }
 
     impl<T: Error> Error for Box<T> {
+        #[inline(always)]
         fn source(&self) -> Option<&(dyn Error + 'static)> {
             Error::source(&**self)
         }
@@ -1923,7 +1989,7 @@ where
     T: serde::Serialize,
     A: Allocator,
 {
-    #[inline]
+    #[inline(always)]
     fn serialize<S: serde::ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         (**self).serialize(serializer)
     }
@@ -1935,7 +2001,7 @@ where
     T: serde::Deserialize<'de>,
     A: Allocator + Default,
 {
-    #[inline]
+    #[inline(always)]
     fn deserialize<D: serde::de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let value = T::deserialize(deserializer)?;
         Ok(Box::new_in(value, A::default()))

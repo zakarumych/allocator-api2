@@ -15,7 +15,7 @@ impl<T> InPlaceDrop<T> {
 }
 
 impl<T> Drop for InPlaceDrop<T> {
-    #[inline]
+    #[inline(always)]
     fn drop(&mut self) {
         unsafe {
             ptr::drop_in_place(slice::from_raw_parts_mut(self.inner, self.len()));
@@ -32,7 +32,7 @@ pub(super) struct InPlaceDstBufDrop<T> {
 }
 
 impl<T> Drop for InPlaceDstBufDrop<T> {
-    #[inline]
+    #[inline(always)]
     fn drop(&mut self) {
         unsafe { super::Vec::from_raw_parts(self.ptr, self.len, self.cap) };
     }

@@ -6,17 +6,17 @@ use crate::stable::assume;
 use super::{AllocError, Allocator, GlobalAlloc as _, Layout};
 
 unsafe impl Allocator for System {
-    #[inline]
+    #[inline(always)]
     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         alloc_impl(layout, false)
     }
 
-    #[inline]
+    #[inline(always)]
     fn allocate_zeroed(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         alloc_impl(layout, true)
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn deallocate(&self, ptr: NonNull<u8>, layout: Layout) {
         if layout.size() != 0 {
             // SAFETY: `layout` is non-zero in size,
@@ -25,7 +25,7 @@ unsafe impl Allocator for System {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn grow(
         &self,
         ptr: NonNull<u8>,
@@ -36,7 +36,7 @@ unsafe impl Allocator for System {
         unsafe { grow_impl(ptr, old_layout, new_layout, false) }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn grow_zeroed(
         &self,
         ptr: NonNull<u8>,
@@ -47,7 +47,7 @@ unsafe impl Allocator for System {
         unsafe { grow_impl(ptr, old_layout, new_layout, true) }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn shrink(
         &self,
         ptr: NonNull<u8>,
@@ -97,7 +97,7 @@ unsafe impl Allocator for System {
     }
 }
 
-#[inline]
+#[inline(always)]
 fn alloc_impl(layout: Layout, zeroed: bool) -> Result<NonNull<[u8]>, AllocError> {
     match layout.size() {
         0 => Ok(unsafe {
@@ -123,7 +123,7 @@ fn alloc_impl(layout: Layout, zeroed: bool) -> Result<NonNull<[u8]>, AllocError>
 }
 
 // SAFETY: Same as `Allocator::grow`
-#[inline]
+#[inline(always)]
 unsafe fn grow_impl(
     ptr: NonNull<u8>,
     old_layout: Layout,

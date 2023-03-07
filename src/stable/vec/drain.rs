@@ -54,7 +54,7 @@ impl<'a, T, A: Allocator> Drain<'a, T, A> {
 
     /// Returns a reference to the underlying allocator.
     #[must_use]
-    #[inline]
+    #[inline(always)]
     pub fn allocator(&self) -> &A {
         unsafe { self.vec.as_ref().allocator() }
     }
@@ -143,7 +143,7 @@ unsafe impl<T: Send, A: Send + Allocator> Send for Drain<'_, T, A> {}
 impl<T, A: Allocator> Iterator for Drain<'_, T, A> {
     type Item = T;
 
-    #[inline]
+    #[inline(always)]
     fn next(&mut self) -> Option<T> {
         self.iter
             .next()
@@ -156,7 +156,7 @@ impl<T, A: Allocator> Iterator for Drain<'_, T, A> {
 }
 
 impl<T, A: Allocator> DoubleEndedIterator for Drain<'_, T, A> {
-    #[inline]
+    #[inline(always)]
     fn next_back(&mut self) -> Option<T> {
         self.iter
             .next_back()

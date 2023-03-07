@@ -70,7 +70,7 @@ impl<T, A: Allocator> IntoIter<T, A> {
     }
 
     /// Returns a reference to the underlying allocator.
-    #[inline]
+    #[inline(always)]
     pub fn allocator(&self) -> &A {
         &self.alloc
     }
@@ -93,7 +93,7 @@ unsafe impl<T: Sync, A: Allocator + Sync> Sync for IntoIter<T, A> {}
 impl<T, A: Allocator> Iterator for IntoIter<T, A> {
     type Item = T;
 
-    #[inline]
+    #[inline(always)]
     fn next(&mut self) -> Option<T> {
         if self.ptr == self.end {
             None
@@ -113,7 +113,7 @@ impl<T, A: Allocator> Iterator for IntoIter<T, A> {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     fn size_hint(&self) -> (usize, Option<usize>) {
         let exact = if size_of::<T>() == 0 {
             sptr::Strict::addr(self.end).wrapping_sub(sptr::Strict::addr(self.ptr))
@@ -123,14 +123,14 @@ impl<T, A: Allocator> Iterator for IntoIter<T, A> {
         (exact, Some(exact))
     }
 
-    #[inline]
+    #[inline(always)]
     fn count(self) -> usize {
         self.len()
     }
 }
 
 impl<T, A: Allocator> DoubleEndedIterator for IntoIter<T, A> {
-    #[inline]
+    #[inline(always)]
     fn next_back(&mut self) -> Option<T> {
         if self.end == self.ptr {
             None

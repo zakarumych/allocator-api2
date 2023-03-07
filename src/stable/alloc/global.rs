@@ -19,7 +19,7 @@ use super::{AllocError, Allocator, Layout};
 pub struct Global;
 
 impl Global {
-    #[inline]
+    #[inline(always)]
     fn alloc_impl(&self, layout: Layout, zeroed: bool) -> Result<NonNull<[u8]>, AllocError> {
         match layout.size() {
             0 => Ok(unsafe {
@@ -45,7 +45,7 @@ impl Global {
     }
 
     // SAFETY: Same as `Allocator::grow`
-    #[inline]
+    #[inline(always)]
     unsafe fn grow_impl(
         &self,
         ptr: NonNull<u8>,
@@ -96,17 +96,17 @@ impl Global {
 }
 
 unsafe impl Allocator for Global {
-    #[inline]
+    #[inline(always)]
     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         self.alloc_impl(layout, false)
     }
 
-    #[inline]
+    #[inline(always)]
     fn allocate_zeroed(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         self.alloc_impl(layout, true)
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn deallocate(&self, ptr: NonNull<u8>, layout: Layout) {
         if layout.size() != 0 {
             // SAFETY: `layout` is non-zero in size,
@@ -115,7 +115,7 @@ unsafe impl Allocator for Global {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn grow(
         &self,
         ptr: NonNull<u8>,
@@ -126,7 +126,7 @@ unsafe impl Allocator for Global {
         unsafe { self.grow_impl(ptr, old_layout, new_layout, false) }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn grow_zeroed(
         &self,
         ptr: NonNull<u8>,
@@ -137,7 +137,7 @@ unsafe impl Allocator for Global {
         unsafe { self.grow_impl(ptr, old_layout, new_layout, true) }
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn shrink(
         &self,
         ptr: NonNull<u8>,

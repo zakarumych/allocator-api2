@@ -253,7 +253,7 @@ impl<T, I> SpecInPlaceCollect<T, I> for I
 where
     I: Iterator<Item = T>,
 {
-    #[inline]
+    #[inline(always)]
     default fn collect_in_place(&mut self, dst_buf: *mut T, end: *const T) -> usize {
         // use try-fold since
         // - it vectorizes better for some iterator adapters
@@ -275,7 +275,7 @@ impl<T, I> SpecInPlaceCollect<T, I> for I
 where
     I: Iterator<Item = T> + TrustedRandomAccessNoCoerce,
 {
-    #[inline]
+    #[inline(always)]
     fn collect_in_place(&mut self, dst_buf: *mut T, end: *const T) -> usize {
         let len = self.size();
         let mut drop_guard = InPlaceDrop {

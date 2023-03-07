@@ -9,7 +9,7 @@ pub(super) struct SetLenOnDrop<'a> {
 }
 
 impl<'a> SetLenOnDrop<'a> {
-    #[inline]
+    #[inline(always)]
     pub(super) fn new(len: &'a mut usize) -> Self {
         SetLenOnDrop {
             local_len: *len,
@@ -17,14 +17,14 @@ impl<'a> SetLenOnDrop<'a> {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     pub(super) fn increment_len(&mut self, increment: usize) {
         self.local_len += increment;
     }
 }
 
 impl Drop for SetLenOnDrop<'_> {
-    #[inline]
+    #[inline(always)]
     fn drop(&mut self) {
         *self.len = self.local_len;
     }
