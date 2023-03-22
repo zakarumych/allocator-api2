@@ -13,6 +13,7 @@ pub mod vec;
 mod macros;
 
 #[track_caller]
+#[inline(always)]
 #[cfg(debug_assertions)]
 unsafe fn assume(v: bool) {
     if !v {
@@ -20,6 +21,7 @@ unsafe fn assume(v: bool) {
     }
 }
 
+#[inline(always)]
 #[cfg(not(debug_assertions))]
 unsafe fn assume(v: bool) {
     if !v {
