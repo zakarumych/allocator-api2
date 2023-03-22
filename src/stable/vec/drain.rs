@@ -48,6 +48,7 @@ impl<'a, T, A: Allocator> Drain<'a, T, A> {
     /// assert_eq!(drain.as_slice(), &['b', 'c']);
     /// ```
     #[must_use]
+    #[inline(always)]
     pub fn as_slice(&self) -> &[T] {
         self.iter.as_slice()
     }
@@ -78,6 +79,7 @@ impl<'a, T, A: Allocator> Drain<'a, T, A> {
     /// // `vec` would be empty.
     /// assert_eq!(vec, ['b', 'c']);
     /// ```
+    #[inline(always)]
     pub fn keep_rest(self) {
         // At this moment layout looks like this:
         //
@@ -131,6 +133,7 @@ impl<'a, T, A: Allocator> Drain<'a, T, A> {
 }
 
 impl<'a, T, A: Allocator> AsRef<[T]> for Drain<'a, T, A> {
+    #[inline(always)]
     fn as_ref(&self) -> &[T] {
         self.as_slice()
     }
@@ -150,6 +153,7 @@ impl<T, A: Allocator> Iterator for Drain<'_, T, A> {
             .map(|elt| unsafe { ptr::read(elt as *const _) })
     }
 
+    #[inline(always)]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -165,6 +169,7 @@ impl<T, A: Allocator> DoubleEndedIterator for Drain<'_, T, A> {
 }
 
 impl<T, A: Allocator> Drop for Drain<'_, T, A> {
+    #[inline]
     fn drop(&mut self) {
         /// Moves back the un-`Drain`ed elements to restore the original `Vec`.
         struct DropGuard<'r, 'a, T, A: Allocator>(&'r mut Drain<'a, T, A>);

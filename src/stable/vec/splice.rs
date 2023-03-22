@@ -26,16 +26,19 @@ pub struct Splice<'a, I: Iterator + 'a, A: Allocator + 'a = Global> {
 impl<I: Iterator, A: Allocator> Iterator for Splice<'_, I, A> {
     type Item = I::Item;
 
+    #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
         self.drain.next()
     }
 
+    #[inline(always)]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.drain.size_hint()
     }
 }
 
 impl<I: Iterator, A: Allocator> DoubleEndedIterator for Splice<'_, I, A> {
+    #[inline(always)]
     fn next_back(&mut self) -> Option<Self::Item> {
         self.drain.next_back()
     }
@@ -44,6 +47,7 @@ impl<I: Iterator, A: Allocator> DoubleEndedIterator for Splice<'_, I, A> {
 impl<I: Iterator, A: Allocator> ExactSizeIterator for Splice<'_, I, A> {}
 
 impl<I: Iterator, A: Allocator> Drop for Splice<'_, I, A> {
+    #[inline]
     fn drop(&mut self) {
         self.drain.by_ref().for_each(drop);
 
@@ -93,6 +97,7 @@ impl<T, A: Allocator> Drain<'_, T, A> {
     /// that have been moved out.
     /// Fill that range as much as possible with new elements from the `replace_with` iterator.
     /// Returns `true` if we filled the entire range. (`replace_with.next()` didn’t return `None`.)
+    #[inline(always)]
     unsafe fn fill<I: Iterator<Item = T>>(&mut self, replace_with: &mut I) -> bool {
         let vec = unsafe { self.vec.as_mut() };
         let range_start = vec.len;
@@ -113,6 +118,7 @@ impl<T, A: Allocator> Drain<'_, T, A> {
     }
 
     /// Makes room for inserting more elements before the tail.
+    #[inline(always)]
     unsafe fn move_tail(&mut self, additional: usize) {
         let vec = unsafe { self.vec.as_mut() };
         let len = self.tail_start + self.tail_len;

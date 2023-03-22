@@ -861,6 +861,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// assert!(vec.capacity() >= 11);
     /// ```
     #[cfg(not(no_global_oom_handling))]
+    #[inline(always)]
     pub fn reserve(&mut self, additional: usize) {
         self.buf.reserve(self.len, additional);
     }
@@ -890,6 +891,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// assert!(vec.capacity() >= 11);
     /// ```
     #[cfg(not(no_global_oom_handling))]
+    #[inline(always)]
     pub fn reserve_exact(&mut self, additional: usize) {
         self.buf.reserve_exact(self.len, additional);
     }
@@ -926,6 +928,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// }
     /// # process_data(&[1, 2, 3]).expect("why is the test harness OOMing on 12 bytes?");
     /// ```
+    #[inline(always)]
     pub fn try_reserve(&mut self, additional: usize) -> Result<(), TryReserveError> {
         self.buf.try_reserve(self.len, additional)
     }
@@ -968,6 +971,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// }
     /// # process_data(&[1, 2, 3]).expect("why is the test harness OOMing on 12 bytes?");
     /// ```
+    #[inline(always)]
     pub fn try_reserve_exact(&mut self, additional: usize) -> Result<(), TryReserveError> {
         self.buf.try_reserve_exact(self.len, additional)
     }
@@ -987,6 +991,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// assert!(vec.capacity() >= 3);
     /// ```
     #[cfg(not(no_global_oom_handling))]
+    #[inline(always)]
     pub fn shrink_to_fit(&mut self) {
         // The capacity is never less than the length, and there's nothing to do when
         // they are equal, so we can avoid the panic case in `RawVec::shrink_to_fit`
@@ -1015,6 +1020,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// assert!(vec.capacity() >= 3);
     /// ```
     #[cfg(not(no_global_oom_handling))]
+    #[inline(always)]
     pub fn shrink_to(&mut self, min_capacity: usize) {
         if self.capacity() > min_capacity {
             self.buf.shrink_to_fit(cmp::max(self.len, min_capacity));
@@ -1047,6 +1053,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// assert_eq!(slice.into_vec().capacity(), 3);
     /// ```
     #[cfg(not(no_global_oom_handling))]
+    #[inline(always)]
     pub fn into_boxed_slice(mut self) -> Box<[T], A> {
         unsafe {
             self.shrink_to_fit();
@@ -1099,6 +1106,7 @@ impl<T, A: Allocator> Vec<T, A> {
     ///
     /// [`clear`]: Vec::clear
     /// [`drain`]: Vec::drain
+    #[inline(always)]
     pub fn truncate(&mut self, len: usize) {
         // This is safe because:
         //
@@ -1448,6 +1456,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// assert_eq!(v, [1, 3]);
     /// ```
     #[track_caller]
+    #[inline(always)]
     pub fn remove(&mut self, index: usize) -> T {
         #[cold]
         #[inline(never)]
@@ -1502,6 +1511,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// vec.retain(|_| *iter.next().unwrap());
     /// assert_eq!(vec, [2, 3, 5]);
     /// ```
+    #[inline(always)]
     pub fn retain<F>(&mut self, mut f: F)
     where
         F: FnMut(&T) -> bool,
@@ -1527,6 +1537,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// });
     /// assert_eq!(vec, [2, 3, 4]);
     /// ```
+    #[inline]
     pub fn retain_mut<F>(&mut self, mut f: F)
     where
         F: FnMut(&mut T) -> bool,
@@ -1668,6 +1679,7 @@ impl<T, A: Allocator> Vec<T, A> {
     ///
     /// assert_eq!(vec, ["foo", "bar", "baz", "bar"]);
     /// ```
+    #[inline]
     pub fn dedup_by<F>(&mut self, mut same_bucket: F)
     where
         F: FnMut(&mut T, &mut T) -> bool,
@@ -1931,6 +1943,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// v.drain(..);
     /// assert_eq!(v, &[]);
     /// ```
+    #[inline(always)]
     pub fn drain<R>(&mut self, range: R) -> Drain<'_, T, A>
     where
         R: RangeBounds<usize>,
@@ -2032,6 +2045,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// v.push(1);
     /// assert!(!v.is_empty());
     /// ```
+    #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
@@ -2119,6 +2133,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// assert_eq!(vec, [2, 4, 8, 16]);
     /// ```
     #[cfg(not(no_global_oom_handling))]
+    #[inline(always)]
     pub fn resize_with<F>(&mut self, new_len: usize, f: F)
     where
         F: FnMut() -> T,
@@ -2315,6 +2330,7 @@ impl<T: Clone, A: Allocator> Vec<T, A> {
     /// assert_eq!(vec, [1, 2]);
     /// ```
     #[cfg(not(no_global_oom_handling))]
+    #[inline(always)]
     pub fn resize(&mut self, new_len: usize, value: T) {
         let len = self.len();
 
@@ -2440,6 +2456,7 @@ impl<T, A: Allocator, const N: usize> Vec<[T; N], A> {
     /// let mut flattened = vec.into_flattened();
     /// assert_eq!(flattened.pop(), Some(6));
     /// ```
+    #[inline(always)]
     pub fn into_flattened(self) -> Vec<T, A> {
         let (ptr, len, cap, alloc) = self.into_raw_parts_with_alloc();
         let (new_len, new_cap) = if size_of::<T>() == 0 {
@@ -2470,9 +2487,12 @@ trait ExtendWith<T> {
 
 struct ExtendElement<T>(T);
 impl<T: Clone> ExtendWith<T> for ExtendElement<T> {
+    #[inline(always)]
     fn next(&mut self) -> T {
         self.0.clone()
     }
+
+    #[inline(always)]
     fn last(self) -> T {
         self.0
     }
@@ -2560,6 +2580,7 @@ trait ExtendFromWithinSpec {
 // }
 
 impl<T: Copy, A: Allocator> ExtendFromWithinSpec for Vec<T, A> {
+    #[inline(always)]
     unsafe fn spec_extend_from_within(&mut self, src: Range<usize>) {
         let count = src.len();
         {
@@ -2725,6 +2746,7 @@ impl<'a, T, A: Allocator> IntoIterator for &'a Vec<T, A> {
     type Item = &'a T;
     type IntoIter = slice::Iter<'a, T>;
 
+    #[inline(always)]
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
     }
@@ -2930,6 +2952,7 @@ impl<T: Clone> From<&[T]> for Vec<T> {
     /// ```
     /// assert_eq!(Vec::from(&[1, 2, 3][..]), vec![1, 2, 3]);
     /// ```
+    #[inline(always)]
     fn from(s: &[T]) -> Vec<T> {
         let mut vec = Vec::with_capacity(s.len());
         vec.extend_from_slice(s);

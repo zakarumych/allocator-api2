@@ -136,6 +136,7 @@ pub unsafe trait Allocator {
     /// call the [`handle_alloc_error`] function, rather than directly invoking `panic!` or similar.
     ///
     /// [`handle_alloc_error`]: ../../alloc/alloc/fn.handle_alloc_error.html
+    #[inline(always)]
     fn allocate_zeroed(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         let ptr = self.allocate(layout)?;
         // SAFETY: `alloc` returns a valid memory block
@@ -192,6 +193,7 @@ pub unsafe trait Allocator {
     /// call the [`handle_alloc_error`] function, rather than directly invoking `panic!` or similar.
     ///
     /// [`handle_alloc_error`]: ../../alloc/alloc/fn.handle_alloc_error.html
+    #[inline(always)]
     unsafe fn grow(
         &self,
         ptr: NonNull<u8>,
@@ -255,6 +257,7 @@ pub unsafe trait Allocator {
     /// call the [`handle_alloc_error`] function, rather than directly invoking `panic!` or similar.
     ///
     /// [`handle_alloc_error`]: ../../alloc/alloc/fn.handle_alloc_error.html
+    #[inline(always)]
     unsafe fn grow_zeroed(
         &self,
         ptr: NonNull<u8>,
@@ -319,6 +322,7 @@ pub unsafe trait Allocator {
     /// call the [`handle_alloc_error`] function, rather than directly invoking `panic!` or similar.
     ///
     /// [`handle_alloc_error`]: ../../alloc/alloc/fn.handle_alloc_error.html
+    #[inline(always)]
     unsafe fn shrink(
         &self,
         ptr: NonNull<u8>,
