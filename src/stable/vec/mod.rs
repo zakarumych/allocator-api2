@@ -83,32 +83,17 @@ pub use self::drain::Drain;
 
 mod drain;
 
-// #[cfg(not(no_global_oom_handling))]
-// mod cow;
-
-// #[cfg(not(no_global_oom_handling))]
-// pub(crate) use self::in_place_collect::AsVecIntoIter;
-
 pub use self::into_iter::IntoIter;
 
 mod into_iter;
 
-// #[cfg(not(no_global_oom_handling))]
-// mod in_place_collect;
-
 mod partial_eq;
-
-#[cfg(not(no_global_oom_handling))]
-use self::set_len_on_drop::SetLenOnDrop;
 
 #[cfg(not(no_global_oom_handling))]
 mod set_len_on_drop;
 
-// #[cfg(not(no_global_oom_handling))]
-// use self::in_place_drop::{InPlaceDrop, InPlaceDstBufDrop};
-
-// #[cfg(not(no_global_oom_handling))]
-// mod in_place_drop;
+#[cfg(not(no_global_oom_handling))]
+use self::set_len_on_drop::SetLenOnDrop;
 
 /// A contiguous growable array type, written as `Vec<T>`, short for 'vector'.
 ///
