@@ -29,7 +29,7 @@ pub use alloc_crate::alloc::handle_alloc_error;
 /// that may be due to resource exhaustion or to
 /// something wrong when combining the given input arguments with this
 /// allocator.
-#[derive(Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct AllocError;
 
 #[cfg(feature = "std")]
