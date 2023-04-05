@@ -28,3 +28,13 @@ unsafe fn assume(v: bool) {
         core::hint::unreachable_unchecked()
     }
 }
+
+#[inline(always)]
+fn addr<T>(x: *const T) -> usize {
+    unsafe { core::mem::transmute(x) }
+}
+
+#[inline(always)]
+fn invalid_mut<T>(addr: usize) -> *mut T {
+    unsafe { core::mem::transmute(addr) }
+}

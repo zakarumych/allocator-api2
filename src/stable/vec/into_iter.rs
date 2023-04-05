@@ -6,6 +6,8 @@ use core::mem::{self, size_of, ManuallyDrop};
 use core::ptr::{self, NonNull};
 use core::slice::{self};
 
+use crate::stable::addr;
+
 use super::{Allocator, Global, RawVec, Vec};
 
 /// An iterator that moves out of a vector.
@@ -116,7 +118,7 @@ impl<T, A: Allocator> Iterator for IntoIter<T, A> {
     #[inline(always)]
     fn size_hint(&self) -> (usize, Option<usize>) {
         let exact = if size_of::<T>() == 0 {
-            sptr::Strict::addr(self.end).wrapping_sub(sptr::Strict::addr(self.ptr))
+            addr(self.end).wrapping_sub(addr(self.ptr))
         } else {
             unsafe { self.end.offset_from(self.ptr) as usize }
         };

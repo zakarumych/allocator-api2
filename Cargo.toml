@@ -17,5 +17,4 @@ default = ["std"]
 nightly = []
 
 [dependencies]
-sptr = { version = "0.3" }
 serde = { version = "1.0", optional = true }

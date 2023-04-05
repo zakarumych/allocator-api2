@@ -3,7 +3,7 @@ use core::ptr::NonNull;
 #[doc(inline)]
 pub use alloc_crate::alloc::{alloc, alloc_zeroed, dealloc, handle_alloc_error, realloc};
 
-use crate::stable::assume;
+use crate::stable::{assume, invalid_mut};
 
 use super::{AllocError, Allocator, Layout};
 
@@ -24,7 +24,7 @@ impl Global {
         match layout.size() {
             0 => Ok(unsafe {
                 NonNull::new_unchecked(core::ptr::slice_from_raw_parts_mut(
-                    sptr::invalid_mut(layout.align()),
+                    invalid_mut(layout.align()),
                     0,
                 ))
             }),
@@ -154,7 +154,7 @@ unsafe impl Allocator for Global {
             0 => unsafe {
                 self.deallocate(ptr, old_layout);
                 Ok(NonNull::new_unchecked(core::ptr::slice_from_raw_parts_mut(
-                    sptr::invalid_mut(new_layout.align()),
+                    invalid_mut(new_layout.align()),
                     0,
                 )))
             },

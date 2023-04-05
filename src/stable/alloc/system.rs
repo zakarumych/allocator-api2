@@ -1,7 +1,7 @@
 use core::ptr::NonNull;
 pub use std::alloc::System;
 
-use crate::stable::assume;
+use crate::stable::{assume, invalid_mut};
 
 use super::{AllocError, Allocator, GlobalAlloc as _, Layout};
 
@@ -64,7 +64,7 @@ unsafe impl Allocator for System {
             0 => unsafe {
                 self.deallocate(ptr, old_layout);
                 Ok(NonNull::new_unchecked(core::ptr::slice_from_raw_parts_mut(
-                    sptr::invalid_mut(new_layout.align()),
+                    invalid_mut(new_layout.align()),
                     0,
                 )))
             },
@@ -102,7 +102,7 @@ fn alloc_impl(layout: Layout, zeroed: bool) -> Result<NonNull<[u8]>, AllocError>
     match layout.size() {
         0 => Ok(unsafe {
             NonNull::new_unchecked(core::ptr::slice_from_raw_parts_mut(
-                sptr::invalid_mut(layout.align()),
+                invalid_mut(layout.align()),
                 0,
             ))
         }),
