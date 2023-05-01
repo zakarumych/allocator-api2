@@ -14,12 +14,27 @@ that use allocators, or anyone else who wants using [`allocator_api`]
 
 The crate should be frequently updated with minor version bump.
 When [`allocator_api`] is stable this crate will get version `1.0` and simply
-reexport from `core`, `alloc` and possibly `std`.
+re-export from `core`, `alloc` and `std`.
 
 The code is mostly verbatim copy from rust repository.
 Mostly attributes are removed.
 
-[`allocator_api`]: https://doc.rust-lang.org/unstable-book/library-features/allocator-api.html
+## Usage
+
+This paragraph describes how to use this crate correctly to ensure
+compatibility and interoperability on both stable and nightly channels.
+
+If you are writing a library that interacts with allocators API, you can
+add this crate as a dependency and use the types and traits from this
+crate instead of the ones in `core` or `alloc`.
+This will allow your library to compile on stable and beta channels.
+
+Your library *MAY* provide a feature that will enable "allocator-api2/nightly".
+When this feature is enabled, your library *MUST* enable
+unstable `#![feature(allocator_api)]` or it may not compile.
+If feature is not provided, your library may not be compatible with the
+rest of the users and cause compilation errors on nightly channel
+when some other crate enables "allocator-api2/nightly" feature.
 
 ## License
 
@@ -33,3 +48,6 @@ at your option.
 ## Contributions
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+
+
+[`allocator_api`]: https://doc.rust-lang.org/unstable-book/library-features/allocator-api.html
