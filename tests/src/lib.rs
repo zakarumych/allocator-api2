@@ -15,9 +15,8 @@ macro_rules! make_test {
 }
 
 pub fn test_allocate_layout<A: Allocator>(alloc: A, layout: Layout) {
-    match alloc.allocate(layout) {
-        Ok(ptr) => unsafe { alloc.deallocate(ptr.cast(), layout) },
-        Err(_) => return,
+    if let Ok(ptr) = alloc.allocate(layout) {
+        unsafe { alloc.deallocate(ptr.cast(), layout) }
     }
 }
 
