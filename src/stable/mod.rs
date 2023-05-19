@@ -1,4 +1,5 @@
 #![deny(unsafe_op_in_unsafe_fn)]
+#![allow(clippy::needless_doctest_main, clippy::partialeq_ne_impl)]
 
 pub mod alloc;
 
@@ -33,10 +34,16 @@ unsafe fn assume(v: bool) {
 
 #[inline(always)]
 fn addr<T>(x: *const T) -> usize {
-    unsafe { core::mem::transmute(x) }
+    #[allow(clippy::useless_transmute, clippy::transmutes_expressible_as_ptr_casts)]
+    unsafe {
+        core::mem::transmute(x)
+    }
 }
 
 #[inline(always)]
 fn invalid_mut<T>(addr: usize) -> *mut T {
-    unsafe { core::mem::transmute(addr) }
+    #[allow(clippy::useless_transmute, clippy::transmutes_expressible_as_ptr_casts)]
+    unsafe {
+        core::mem::transmute(addr)
+    }
 }

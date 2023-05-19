@@ -1400,14 +1400,18 @@ impl<T, A: Allocator> Vec<T, A> {
             // The spot to put the new value
             {
                 let p = self.as_mut_ptr().add(index);
-                if index < len {
-                    // Shift everything over to make space. (Duplicating the
-                    // `index`th element into two consecutive places.)
-                    ptr::copy(p, p.add(1), len - index);
-                } else if index == len {
-                    // No elements need shifting.
-                } else {
-                    assert_failed(index, len);
+                match cmp::Ord::cmp(&index, &len) {
+                    Ordering::Less => {
+                        // Shift everything over to make space. (Duplicating the
+                        // `index`th element into two consecutive places.)
+                        ptr::copy(p, p.add(1), len - index);
+                    }
+                    Ordering::Equal => {
+                        // No elements need shifting.
+                    }
+                    Ordering::Greater => {
+                        assert_failed(index, len);
+                    }
                 }
                 // Write it in, overwriting the first copy of the `index`th
                 // element.
@@ -2842,7 +2846,7 @@ impl<'a, T: Copy + 'a, A: Allocator + 'a> Extend<&'a T> for Vec<T, A> {
                 self.reserve(lower.saturating_add(1));
             }
             unsafe {
-                ptr::write(self.as_mut_ptr().add(len), element.clone());
+                ptr::write(self.as_mut_ptr().add(len), *element);
                 // Since next() executes user code which can panic we have to bump the length
                 // after each step.
                 // NB can't overflow since we would have had to alloc the address space

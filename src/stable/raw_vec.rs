@@ -319,7 +319,7 @@ impl<T, A: Allocator> RawVec<T, A> {
             // checks to get our current layout.
             unsafe {
                 let layout = Layout::array::<T>(self.cap).unwrap_unchecked();
-                Some((self.ptr.cast().into(), layout))
+                Some((self.ptr.cast(), layout))
             }
         }
     }

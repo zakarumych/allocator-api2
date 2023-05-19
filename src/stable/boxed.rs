@@ -1826,7 +1826,7 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<[T], A> {
     #[inline(always)]
     fn clone_from(&mut self, other: &Self) {
         if self.len() == other.len() {
-            self.clone_from_slice(&other);
+            self.clone_from_slice(other);
         } else {
             *self = other.clone();
         }
@@ -1836,28 +1836,28 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<[T], A> {
 impl<T: ?Sized, A: Allocator> borrow::Borrow<T> for Box<T, A> {
     #[inline(always)]
     fn borrow(&self) -> &T {
-        &**self
+        self
     }
 }
 
 impl<T: ?Sized, A: Allocator> borrow::BorrowMut<T> for Box<T, A> {
     #[inline(always)]
     fn borrow_mut(&mut self) -> &mut T {
-        &mut **self
+        self
     }
 }
 
 impl<T: ?Sized, A: Allocator> AsRef<T> for Box<T, A> {
     #[inline(always)]
     fn as_ref(&self) -> &T {
-        &**self
+        self
     }
 }
 
 impl<T: ?Sized, A: Allocator> AsMut<T> for Box<T, A> {
     #[inline(always)]
     fn as_mut(&mut self) -> &mut T {
-        &mut **self
+        self
     }
 }
 
