@@ -1,0 +1,8 @@
+[package]
+name = "allocator-api2-tests"
+version = "0.1.0"
+edition = "2021"
+description = "Tests for allocators that implement the allocator API"
+
+[dependencies]
+allocator-api2 = { version = "=0.2.9", path = ".." }
