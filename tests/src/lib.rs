@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", feature(allocator_api))]
+
 use std::alloc::Layout;
 
 use allocator_api2::{alloc::Allocator, vec::Vec};
