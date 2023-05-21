@@ -6,11 +6,13 @@ use allocator_api2::{alloc::Allocator, vec::Vec};
 
 #[macro_export]
 macro_rules! make_test {
-    ($test_name:ident($($arg:expr),* $(,)?)) => {
-        #[test]
-        fn $test_name() {
-            $crate::$test_name($($arg),*);
-        }
+    ($($test_name:ident($($arg:expr),* $(,)?)),* $(,)?) => {
+        $(
+            #[test]
+            fn $test_name() {
+                $crate::$test_name($($arg),*);
+            }
+        )*
     };
 }
 
