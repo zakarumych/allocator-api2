@@ -2,7 +2,7 @@
 
 use std::alloc::Layout;
 
-use allocator_api2::{alloc::Allocator, vec::Vec};
+use allocator_api2::{alloc::Allocator, boxed::Box, vec::Vec};
 
 #[macro_export]
 macro_rules! make_test {
@@ -49,4 +49,18 @@ pub fn test_vec<A: Allocator>(alloc: A) {
 
     vec.resize(12467, 0xfe);
     drop(vec);
+}
+
+pub fn test_many_boxes<A: Allocator + Copy>(alloc: A) {
+    let mut boxes = Vec::new_in(alloc);
+
+    for i in 0..15 {
+        boxes.push(Box::new_in(i, alloc));
+    }
+
+    for i in 0..15 {
+        assert_eq!(*boxes[i], i);
+    }
+
+    drop(boxes);
 }
