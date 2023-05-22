@@ -1,9 +1,10 @@
 [package]
 name = "allocator-api2-tests"
-version = "0.2.9"
+version = "0.0.0"
 edition = "2021"
 description = "Tests for allocators that implement the allocator API"
 license = "MIT OR Apache-2.0"
+publish = false
 
 [features]
 nightly = ["allocator-api2/nightly"]
