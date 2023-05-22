@@ -31,7 +31,9 @@ unsafe fn assume(v: bool) {
 #[cfg(not(debug_assertions))]
 unsafe fn assume(v: bool) {
     if !v {
-        core::hint::unreachable_unchecked()
+        unsafe {
+            core::hint::unreachable_unchecked();
+        }
     }
 }
 
