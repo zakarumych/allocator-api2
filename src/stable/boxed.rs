@@ -2001,6 +2001,111 @@ mod error {
     }
 }
 
+#[cfg(feature = "std")]
+impl<R: std::io::Read + ?Sized, A: Allocator> std::io::Read for Box<R, A> {
+    #[inline]
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        (**self).read(buf)
+    }
+
+    #[inline]
+    fn read_to_end(&mut self, buf: &mut std::vec::Vec<u8>) -> std::io::Result<usize> {
+        (**self).read_to_end(buf)
+    }
+
+    #[inline]
+    fn read_to_string(&mut self, buf: &mut String) -> std::io::Result<usize> {
+        (**self).read_to_string(buf)
+    }
+
+    #[inline]
+    fn read_exact(&mut self, buf: &mut [u8]) -> std::io::Result<()> {
+        (**self).read_exact(buf)
+    }
+}
+
+#[cfg(feature = "std")]
+impl<W: std::io::Write + ?Sized, A: Allocator> std::io::Write for Box<W, A> {
+    #[inline]
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        (**self).write(buf)
+    }
+
+    #[inline]
+    fn flush(&mut self) -> std::io::Result<()> {
+        (**self).flush()
+    }
+
+    #[inline]
+    fn write_all(&mut self, buf: &[u8]) -> std::io::Result<()> {
+        (**self).write_all(buf)
+    }
+
+    #[inline]
+    fn write_fmt(&mut self, fmt: fmt::Arguments<'_>) -> std::io::Result<()> {
+        (**self).write_fmt(fmt)
+    }
+}
+
+#[cfg(feature = "std")]
+impl<S: std::io::Seek + ?Sized, A: Allocator> std::io::Seek for Box<S, A> {
+    #[inline]
+    fn seek(&mut self, pos: std::io::SeekFrom) -> std::io::Result<u64> {
+        (**self).seek(pos)
+    }
+
+    #[inline]
+    fn stream_position(&mut self) -> std::io::Result<u64> {
+        (**self).stream_position()
+    }
+}
+
+#[cfg(feature = "std")]
+impl<B: std::io::BufRead + ?Sized, A: Allocator> std::io::BufRead for Box<B, A> {
+    #[inline]
+    fn fill_buf(&mut self) -> std::io::Result<&[u8]> {
+        (**self).fill_buf()
+    }
+
+    #[inline]
+    fn consume(&mut self, amt: usize) {
+        (**self).consume(amt)
+    }
+
+    #[inline]
+    fn read_until(&mut self, byte: u8, buf: &mut std::vec::Vec<u8>) -> std::io::Result<usize> {
+        (**self).read_until(byte, buf)
+    }
+
+    #[inline]
+    fn read_line(&mut self, buf: &mut std::string::String) -> std::io::Result<usize> {
+        (**self).read_line(buf)
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl<A: Allocator> Extend<Box<str, A>> for alloc_crate::string::String {
+    fn extend<I: IntoIterator<Item = Box<str, A>>>(&mut self, iter: I) {
+        iter.into_iter().for_each(move |s| self.push_str(&s));
+    }
+}
+
+impl Clone for Box<core::ffi::CStr> {
+    #[inline]
+    fn clone(&self) -> Self {
+        (**self).into()
+    }
+}
+
+impl From<&core::ffi::CStr> for Box<core::ffi::CStr> {
+    /// Converts a `&CStr` into a `Box<CStr>`,
+    /// by copying the contents into a newly allocated [`Box`].
+    fn from(s: &core::ffi::CStr) -> Box<core::ffi::CStr> {
+        let boxed: Box<[u8]> = Box::from(s.to_bytes_with_nul());
+        unsafe { Box::from_raw(Box::into_raw(boxed) as *mut core::ffi::CStr) }
+    }
+}
+
 #[cfg(feature = "serde")]
 impl<T, A> serde::Serialize for Box<T, A>
 where
