@@ -15,6 +15,7 @@ pub mod vec;
 #[cfg(feature = "alloc")]
 mod macros;
 
+#[cfg(feature = "alloc")]
 #[track_caller]
 #[inline(always)]
 #[cfg(debug_assertions)]
@@ -24,6 +25,8 @@ unsafe fn assume(v: bool) {
     }
 }
 
+#[cfg(feature = "alloc")]
+#[track_caller]
 #[inline(always)]
 #[cfg(not(debug_assertions))]
 unsafe fn assume(v: bool) {
@@ -32,6 +35,7 @@ unsafe fn assume(v: bool) {
     }
 }
 
+#[cfg(feature = "alloc")]
 #[inline(always)]
 fn addr<T>(x: *const T) -> usize {
     #[allow(clippy::useless_transmute, clippy::transmutes_expressible_as_ptr_casts)]
@@ -40,6 +44,7 @@ fn addr<T>(x: *const T) -> usize {
     }
 }
 
+#[cfg(feature = "alloc")]
 #[inline(always)]
 fn invalid_mut<T>(addr: usize) -> *mut T {
     #[allow(clippy::useless_transmute, clippy::transmutes_expressible_as_ptr_casts)]
