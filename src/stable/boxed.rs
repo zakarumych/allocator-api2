@@ -176,6 +176,24 @@ use alloc_crate::alloc::handle_alloc_error;
 /// See the [module-level documentation](../../std/boxed/index.html) for more.
 pub struct Box<T: ?Sized, A: Allocator = Global>(NonNull<T>, A);
 
+// Safety: Box owns both T and A, so sending is safe if
+// sending is safe for T and A.
+unsafe impl<T: ?Sized, A: Allocator> Send for Box<T, A>
+where
+    T: Send,
+    A: Send,
+{
+}
+
+// Safety: Box owns both T and A, so sharing is safe if
+// sharing is safe for T and A.
+unsafe impl<T: ?Sized, A: Allocator> Sync for Box<T, A>
+where
+    T: Sync,
+    A: Sync,
+{
+}
+
 impl<T> Box<T> {
     /// Allocates memory on the heap and then places `x` into it.
     ///
