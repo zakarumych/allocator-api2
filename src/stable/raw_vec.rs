@@ -119,6 +119,24 @@ pub(crate) struct RawVec<T, A: Allocator = Global> {
     alloc: A,
 }
 
+// Safety: RawVec owns both T and A, so sending is safe if
+// sending is safe for T and A.
+unsafe impl<T, A: Allocator> Send for RawVec<T, A>
+where
+    T: Send,
+    A: Send,
+{
+}
+
+// Safety: RawVec owns both T and A, so sharing is safe if
+// sharing is safe for T and A.
+unsafe impl<T, A: Allocator> Sync for RawVec<T, A>
+where
+    T: Sync,
+    A: Sync,
+{
+}
+
 impl<T> RawVec<T, Global> {
     /// Creates the biggest possible `RawVec` (on the system heap)
     /// without allocating. If `T` has positive size, then this makes a
