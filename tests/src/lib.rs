@@ -1,4 +1,5 @@
 #![cfg_attr(feature = "nightly", feature(allocator_api))]
+#![cfg(not(no_global_oom_handling))]
 
 use std::alloc::Layout;
 

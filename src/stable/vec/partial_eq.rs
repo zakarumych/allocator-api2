@@ -1,6 +1,6 @@
+#[cfg(not(no_global_oom_handling))]
 use alloc_crate::borrow::Cow;
 
-#[cfg(not(no_global_oom_handling))]
 use crate::stable::alloc::Allocator;
 
 use super::Vec;

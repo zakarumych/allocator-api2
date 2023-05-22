@@ -169,7 +169,6 @@ use super::raw_vec::RawVec;
 use super::vec::Vec;
 #[cfg(not(no_global_oom_handling))]
 use alloc_crate::alloc::handle_alloc_error;
-#[cfg(not(no_global_oom_handling))]
 
 /// A pointer type for heap allocation.
 ///
@@ -2090,6 +2089,7 @@ impl<A: Allocator> Extend<Box<str, A>> for alloc_crate::string::String {
     }
 }
 
+#[cfg(not(no_global_oom_handling))]
 impl Clone for Box<core::ffi::CStr> {
     #[inline]
     fn clone(&self) -> Self {
@@ -2097,6 +2097,7 @@ impl Clone for Box<core::ffi::CStr> {
     }
 }
 
+#[cfg(not(no_global_oom_handling))]
 impl From<&core::ffi::CStr> for Box<core::ffi::CStr> {
     /// Converts a `&CStr` into a `Box<CStr>`,
     /// by copying the contents into a newly allocated [`Box`].

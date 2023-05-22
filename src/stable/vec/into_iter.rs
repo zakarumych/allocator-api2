@@ -2,13 +2,16 @@ use core::fmt;
 use core::iter::FusedIterator;
 use core::marker::PhantomData;
 use core::mem::{self, size_of, ManuallyDrop};
-#[cfg(not(no_global_oom_handling))]
+
 use core::ptr::{self, NonNull};
 use core::slice::{self};
 
 use crate::stable::addr;
 
-use super::{Allocator, Global, RawVec, Vec};
+use super::{Allocator, Global, RawVec};
+
+#[cfg(not(no_global_oom_handling))]
+use super::Vec;
 
 /// An iterator that moves out of a vector.
 ///

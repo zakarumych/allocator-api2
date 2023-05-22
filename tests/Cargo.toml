@@ -1,6 +1,6 @@
 [package]
 name = "allocator-api2-tests"
-version = "0.2.11"
+version = "0.2.12"
 edition = "2021"
 description = "Tests for allocators that implement the allocator API"
 license = "MIT OR Apache-2.0"
@@ -12,4 +12,4 @@ repository = "https://github.com/zakarumych/allocator-api2"
 nightly = ["allocator-api2/nightly"]
 
 [dependencies]
-allocator-api2 = { version = "=0.2.11", path = ".." }
+allocator-api2 = { version = "=0.2.12", path = ".." }

@@ -57,6 +57,7 @@ use core::cmp::Ordering;
 use core::convert::TryFrom;
 use core::fmt;
 use core::hash::{Hash, Hasher};
+#[cfg(not(no_global_oom_handling))]
 use core::iter;
 #[cfg(not(no_global_oom_handling))]
 use core::iter::FromIterator;
