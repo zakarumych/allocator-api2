@@ -61,7 +61,11 @@ macro_rules! vec {
         $crate::vec::from_elem_in($elem, $n, $alloc)
     );
     (in $alloc:expr; $($x:expr),+ $(,)?) => (
-        $crate::vec::Vec::from($crate::boxed::Box::new_in([$($x),+], $alloc).slice())
+        $crate::boxed::Box::<[_]>::into_vec(
+            $crate::boxed::Box::slice(
+                $crate::boxed::Box::new_in([$($x),+], $alloc)
+            )
+        )
     );
     () => (
         $crate::vec::Vec::new()
@@ -70,6 +74,10 @@ macro_rules! vec {
         $crate::vec::from_elem($elem, $n)
     );
     ($($x:expr),+ $(,)?) => (
-        $crate::vec::Vec::from($crate::boxed::Box::new([$($x),+]).slice())
+        $crate::boxed::Box::<[_]>::into_vec(
+            $crate::boxed::Box::slice(
+                $crate::boxed::Box::new([$($x),+])
+            )
+        )
     );
 }

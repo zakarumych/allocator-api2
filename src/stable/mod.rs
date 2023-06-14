@@ -1,6 +1,9 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 #![allow(clippy::needless_doctest_main, clippy::partialeq_ne_impl)]
 
+#[cfg(feature = "alloc")]
+pub use self::slice::SliceExt;
+
 pub mod alloc;
 
 #[cfg(feature = "alloc")]
@@ -14,6 +17,9 @@ pub mod vec;
 
 #[cfg(feature = "alloc")]
 mod macros;
+
+#[cfg(feature = "alloc")]
+mod slice;
 
 #[cfg(feature = "alloc")]
 #[track_caller]

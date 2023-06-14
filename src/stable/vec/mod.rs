@@ -2971,7 +2971,7 @@ impl<T: Clone> From<&mut [T]> for Vec<T> {
 impl<T, const N: usize> From<[T; N]> for Vec<T> {
     #[inline(always)]
     fn from(s: [T; N]) -> Vec<T> {
-        Box::new(s).slice().into()
+        Box::slice(Box::new(s)).into_vec()
     }
 }
 
@@ -2987,11 +2987,7 @@ impl<T, A: Allocator> From<Box<[T], A>> for Vec<T, A> {
     /// ```
     #[inline(always)]
     fn from(s: Box<[T], A>) -> Self {
-        unsafe {
-            let len = s.len();
-            let (ptr, alloc) = Box::into_raw_with_allocator(s);
-            Vec::from_raw_parts_in(ptr.cast(), len, len, alloc)
-        }
+        s.into_vec()
     }
 }
 
@@ -3007,10 +3003,7 @@ impl<T, A: Allocator, const N: usize> From<Box<[T; N], A>> for Vec<T, A> {
     /// ```
     #[inline(always)]
     fn from(s: Box<[T; N], A>) -> Self {
-        unsafe {
-            let (ptr, alloc) = Box::into_raw_with_allocator(s);
-            Vec::from_raw_parts_in(ptr.cast(), N, N, alloc)
-        }
+        s.into_vec()
     }
 }
 

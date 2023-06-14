@@ -754,6 +754,17 @@ impl<T, A: Allocator> Box<[T], A> {
     pub fn new_zeroed_slice_in(len: usize, alloc: A) -> Box<[mem::MaybeUninit<T>], A> {
         unsafe { RawVec::with_capacity_zeroed_in(len, alloc).into_box(len) }
     }
+
+    pub fn into_vec(self) -> Vec<T, A>
+    where
+        A: Allocator,
+    {
+        unsafe {
+            let len = self.len();
+            let (b, alloc) = Box::into_raw_with_allocator(self);
+            Vec::from_raw_parts_in(b as *mut T, len, len, alloc)
+        }
+    }
 }
 
 impl<T, A: Allocator> Box<mem::MaybeUninit<T>, A> {
@@ -1488,9 +1499,19 @@ impl<A: Allocator> From<Box<str, A>> for Box<[u8], A> {
 
 impl<T, A: Allocator, const N: usize> Box<[T; N], A> {
     #[inline(always)]
-    pub fn slice(self) -> Box<[T], A> {
-        let (ptr, alloc) = Box::into_raw_with_allocator(self);
+    pub fn slice(b: Self) -> Box<[T], A> {
+        let (ptr, alloc) = Box::into_raw_with_allocator(b);
         unsafe { Box::from_raw_in(ptr, alloc) }
+    }
+
+    pub fn into_vec(self) -> Vec<T, A>
+    where
+        A: Allocator,
+    {
+        unsafe {
+            let (b, alloc) = Box::into_raw_with_allocator(self);
+            Vec::from_raw_parts_in(b as *mut T, N, N, alloc)
+        }
     }
 }
 
@@ -1508,7 +1529,7 @@ impl<T, const N: usize> From<[T; N]> for Box<[T]> {
     /// ```
     #[inline(always)]
     fn from(array: [T; N]) -> Box<[T]> {
-        Box::new(array).slice()
+        Box::slice(Box::new(array))
     }
 }
 
