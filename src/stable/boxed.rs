@@ -1183,6 +1183,7 @@ impl<T: ?Sized, A: Allocator> Drop for Box<T, A> {
     fn drop(&mut self) {
         let layout = Layout::for_value::<T>(&**self);
         unsafe {
+            ptr::drop_in_place(self.0.as_mut());
             self.1.deallocate(self.0.cast(), layout);
         }
     }
