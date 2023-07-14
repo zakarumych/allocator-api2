@@ -20,5 +20,6 @@ jobs:
     - name: Run cargo test
       uses: actions-rs/cargo@v1
       with:
+        toolchain: nightly
         command: test
         args: --all --all-features
