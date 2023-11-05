@@ -9,6 +9,7 @@ homepage = "https://github.com/zakarumych/allocator-api2"
 repository = "https://github.com/zakarumych/allocator-api2"
 readme = "README.md"
 description = "Mirror of Rust's allocator API"
+rust-version = "1.63.0"
 
 [features]
 alloc = []
