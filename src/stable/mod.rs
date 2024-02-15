@@ -22,6 +22,11 @@ mod macros;
 mod slice;
 
 #[cfg(feature = "alloc")]
+pub mod collections {
+    pub use super::raw_vec::{TryReserveError, TryReserveErrorKind};
+}
+
+#[cfg(feature = "alloc")]
 #[track_caller]
 #[inline(always)]
 #[cfg(debug_assertions)]
