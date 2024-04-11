@@ -67,6 +67,9 @@ use core::ops::{self, Bound, Index, IndexMut, Range, RangeBounds};
 use core::ptr::{self, NonNull};
 use core::slice::{self, SliceIndex};
 
+#[cfg(feature = "std")]
+use std::io;
+
 use super::{
     alloc::{Allocator, Global},
     assume,
@@ -3113,6 +3116,38 @@ pub fn from_elem<T: Clone>(elem: T, n: usize) -> Vec<T> {
     let mut v = Vec::with_capacity(n);
     v.extend_with(n, ExtendElement(elem));
     v
+}
+
+/// Write is implemented for `Vec<u8>` by appending to the vector.
+/// The vector will grow as needed.
+#[cfg(feature = "std")]
+impl<A: Allocator> io::Write for Vec<u8, A> {
+    #[inline]
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.extend_from_slice(buf);
+        Ok(buf.len())
+    }
+
+    #[inline]
+    fn write_vectored(&mut self, bufs: &[io::IoSlice<'_>]) -> io::Result<usize> {
+        let len = bufs.iter().map(|b| b.len()).sum();
+        self.reserve(len);
+        for buf in bufs {
+            self.extend_from_slice(buf);
+        }
+        Ok(len)
+    }
+
+    #[inline]
+    fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
+        self.extend_from_slice(buf);
+        Ok(())
+    }
+
+    #[inline]
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "serde")]
