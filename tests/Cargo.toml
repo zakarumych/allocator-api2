@@ -12,4 +12,4 @@ repository = "https://github.com/zakarumych/allocator-api2"
 nightly = ["allocator-api2/nightly"]
 
 [dependencies]
-allocator-api2 = { version = "=0.2.16", path = ".." }
+allocator-api2 = { version = "=0.2.17", path = ".." }
