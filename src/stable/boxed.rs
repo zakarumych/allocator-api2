@@ -157,7 +157,7 @@ use core::hash::{Hash, Hasher};
 use core::iter::FromIterator;
 use core::iter::{FusedIterator, Iterator};
 use core::marker::Unpin;
-use core::mem;
+use core::mem::{self, MaybeUninit};
 use core::ops::{Deref, DerefMut};
 use core::pin::Pin;
 use core::ptr::{self, NonNull};
@@ -461,8 +461,13 @@ impl<T, A: Allocator> Box<T, A> {
     where
         A: Allocator,
     {
-        let layout = Layout::new::<mem::MaybeUninit<T>>();
-        let ptr = alloc.allocate(layout)?.cast();
+        let ptr = if mem::size_of::<T>() == 0 {
+            NonNull::dangling()
+        } else {
+            let layout = Layout::new::<mem::MaybeUninit<T>>();
+            alloc.allocate(layout)?.cast()
+        };
+
         unsafe { Ok(Box::from_raw_in(ptr.as_ptr(), alloc)) }
     }
 
@@ -530,8 +535,12 @@ impl<T, A: Allocator> Box<T, A> {
     where
         A: Allocator,
     {
-        let layout = Layout::new::<mem::MaybeUninit<T>>();
-        let ptr = alloc.allocate_zeroed(layout)?.cast();
+        let ptr = if mem::size_of::<T>() == 0 {
+            NonNull::dangling()
+        } else {
+            let layout = Layout::new::<mem::MaybeUninit<T>>();
+            alloc.allocate_zeroed(layout)?.cast()
+        };
         unsafe { Ok(Box::from_raw_in(ptr.as_ptr(), alloc)) }
     }
 
@@ -656,14 +665,7 @@ impl<T> Box<[T]> {
     /// ```
     #[inline(always)]
     pub fn try_new_uninit_slice(len: usize) -> Result<Box<[mem::MaybeUninit<T>]>, AllocError> {
-        unsafe {
-            let layout = match Layout::array::<mem::MaybeUninit<T>>(len) {
-                Ok(l) => l,
-                Err(_) => return Err(AllocError),
-            };
-            let ptr = Global.allocate(layout)?;
-            Ok(RawVec::from_raw_parts_in(ptr.as_ptr() as *mut _, len, Global).into_box(len))
-        }
+        Self::try_new_uninit_slice_in(len, Global)
     }
 
     /// Constructs a new boxed slice with uninitialized contents, with the memory
@@ -687,14 +689,7 @@ impl<T> Box<[T]> {
     /// [zeroed]: mem::MaybeUninit::zeroed
     #[inline(always)]
     pub fn try_new_zeroed_slice(len: usize) -> Result<Box<[mem::MaybeUninit<T>]>, AllocError> {
-        unsafe {
-            let layout = match Layout::array::<mem::MaybeUninit<T>>(len) {
-                Ok(l) => l,
-                Err(_) => return Err(AllocError),
-            };
-            let ptr = Global.allocate_zeroed(layout)?;
-            Ok(RawVec::from_raw_parts_in(ptr.as_ptr() as *mut _, len, Global).into_box(len))
-        }
+        Self::try_new_zeroed_slice_in(len, Global)
     }
 }
 
@@ -755,6 +750,98 @@ impl<T, A: Allocator> Box<[T], A> {
         unsafe { RawVec::with_capacity_zeroed_in(len, alloc).into_box(len) }
     }
 
+    /// Constructs a new boxed slice with uninitialized contents in the provided allocator. Returns an error if
+    /// the allocation fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(allocator_api, new_uninit)]
+    ///
+    /// use std::alloc::System;
+    ///
+    /// let mut values = Box::<[u32], _>::try_new_uninit_slice_in(3, System)?;
+    /// let values = unsafe {
+    ///     // Deferred initialization:
+    ///     values[0].as_mut_ptr().write(1);
+    ///     values[1].as_mut_ptr().write(2);
+    ///     values[2].as_mut_ptr().write(3);
+    ///     values.assume_init()
+    /// };
+    ///
+    /// assert_eq!(*values, [1, 2, 3]);
+    /// # Ok::<(), std::alloc::AllocError>(())
+    /// ```
+    #[inline]
+    pub fn try_new_uninit_slice_in(
+        len: usize,
+        alloc: A,
+    ) -> Result<Box<[MaybeUninit<T>], A>, AllocError> {
+        let ptr = if mem::size_of::<T>() == 0 || len == 0 {
+            NonNull::dangling()
+        } else {
+            let layout = match Layout::array::<mem::MaybeUninit<T>>(len) {
+                Ok(l) => l,
+                Err(_) => return Err(AllocError),
+            };
+            alloc.allocate(layout)?.cast()
+        };
+        unsafe { Ok(RawVec::from_raw_parts_in(ptr.as_ptr(), len, alloc).into_box(len)) }
+    }
+
+    /// Constructs a new boxed slice with uninitialized contents in the provided allocator, with the memory
+    /// being filled with `0` bytes. Returns an error if the allocation fails.
+    ///
+    /// See [`MaybeUninit::zeroed`][zeroed] for examples of correct and incorrect usage
+    /// of this method.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #![feature(allocator_api, new_uninit)]
+    ///
+    /// use std::alloc::System;
+    ///
+    /// let values = Box::<[u32], _>::try_new_zeroed_slice_in(3, System)?;
+    /// let values = unsafe { values.assume_init() };
+    ///
+    /// assert_eq!(*values, [0, 0, 0]);
+    /// # Ok::<(), std::alloc::AllocError>(())
+    /// ```
+    ///
+    /// [zeroed]: mem::MaybeUninit::zeroed
+    #[inline]
+    pub fn try_new_zeroed_slice_in(
+        len: usize,
+        alloc: A,
+    ) -> Result<Box<[mem::MaybeUninit<T>], A>, AllocError> {
+        let ptr = if mem::size_of::<T>() == 0 || len == 0 {
+            NonNull::dangling()
+        } else {
+            let layout = match Layout::array::<mem::MaybeUninit<T>>(len) {
+                Ok(l) => l,
+                Err(_) => return Err(AllocError),
+            };
+            alloc.allocate_zeroed(layout)?.cast()
+        };
+        unsafe { Ok(RawVec::from_raw_parts_in(ptr.as_ptr(), len, alloc).into_box(len)) }
+    }
+
+    /// Converts `self` into a vector without clones or allocation.
+    ///
+    /// The resulting vector can be converted back into a box via
+    /// `Vec<T>`'s `into_boxed_slice` method.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let s: Box<[i32]> = Box::new([10, 40, 30]);
+    /// let x = s.into_vec();
+    /// // `s` cannot be used anymore because it has been converted into `x`.
+    ///
+    /// assert_eq!(x, vec![10, 40, 30]);
+    /// ```
+    #[inline]
     pub fn into_vec(self) -> Vec<T, A>
     where
         A: Allocator,
