@@ -165,6 +165,7 @@ use core::task::{Context, Poll};
 
 use super::alloc::{AllocError, Allocator, Global, Layout};
 use super::raw_vec::RawVec;
+use super::unique::Unique;
 #[cfg(not(no_global_oom_handling))]
 use super::vec::Vec;
 #[cfg(not(no_global_oom_handling))]
@@ -173,7 +174,7 @@ use alloc_crate::alloc::handle_alloc_error;
 /// A pointer type for heap allocation.
 ///
 /// See the [module-level documentation](../../std/boxed/index.html) for more.
-pub struct Box<T: ?Sized, A: Allocator = Global>(NonNull<T>, A);
+pub struct Box<T: ?Sized, A: Allocator = Global>(Unique<T>, A);
 
 // Safety: Box owns both T and A, so sending is safe if
 // sending is safe for T and A.
@@ -585,7 +586,11 @@ impl<T, A: Allocator> Box<T, A> {
     pub fn into_inner(boxed: Self) -> T {
         let ptr = boxed.0;
         let unboxed = unsafe { ptr.as_ptr().read() };
-        unsafe { boxed.1.deallocate(ptr.cast(), Layout::new::<T>()) };
+        unsafe {
+            boxed
+                .1
+                .deallocate(ptr.as_non_null_ptr().cast(), Layout::new::<T>())
+        };
         unboxed
     }
 }
@@ -885,8 +890,8 @@ impl<T, A: Allocator> Box<mem::MaybeUninit<T>, A> {
     /// ```
     #[inline(always)]
     pub unsafe fn assume_init(self) -> Box<T, A> {
-        let (raw, alloc) = Box::into_raw_with_allocator(self);
-        unsafe { Box::from_raw_in(raw as *mut T, alloc) }
+        let (raw, alloc) = Self::into_raw_with_allocator(self);
+        unsafe { Box::<T, A>::from_raw_in(raw as *mut T, alloc) }
     }
 
     /// Writes the value and converts to `Box<T, A>`.
@@ -958,8 +963,8 @@ impl<T, A: Allocator> Box<[mem::MaybeUninit<T>], A> {
     /// ```
     #[inline(always)]
     pub unsafe fn assume_init(self) -> Box<[T], A> {
-        let (raw, alloc) = Box::into_raw_with_allocator(self);
-        unsafe { Box::from_raw_in(raw as *mut [T], alloc) }
+        let (raw, alloc) = Self::into_raw_with_allocator(self);
+        unsafe { Box::<[T], A>::from_raw_in(raw as *mut [T], alloc) }
     }
 }
 
@@ -1060,7 +1065,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// [`Layout`]: crate::Layout
     #[inline(always)]
     pub const unsafe fn from_raw_in(raw: *mut T, alloc: A) -> Self {
-        Box(unsafe { NonNull::new_unchecked(raw) }, alloc)
+        Box(unsafe { Unique::new_unchecked(raw) }, alloc)
     }
 
     /// Consumes the `Box`, returning a wrapped raw pointer.
@@ -1271,7 +1276,7 @@ impl<T: ?Sized, A: Allocator> Drop for Box<T, A> {
         let layout = Layout::for_value::<T>(&**self);
         unsafe {
             ptr::drop_in_place(self.0.as_mut());
-            self.1.deallocate(self.0.cast(), layout);
+            self.1.deallocate(self.0.as_non_null_ptr().cast(), layout);
         }
     }
 }
@@ -1289,7 +1294,7 @@ impl<T, A: Allocator + Default> Default for Box<[T], A> {
     #[inline(always)]
     fn default() -> Self {
         let ptr: NonNull<[T]> = NonNull::<[T; 0]>::dangling();
-        Box(ptr, A::default())
+        Box(unsafe { Unique::new_unchecked(ptr.as_ptr()) }, A::default())
     }
 }
 
@@ -1297,9 +1302,9 @@ impl<A: Allocator + Default> Default for Box<str, A> {
     #[inline(always)]
     fn default() -> Self {
         // SAFETY: This is the same as `Unique::cast<U>` but with an unsized `U = str`.
-        let ptr: NonNull<str> = unsafe {
+        let ptr: Unique<str> = unsafe {
             let bytes: NonNull<[u8]> = NonNull::<[u8; 0]>::dangling();
-            NonNull::new_unchecked(bytes.as_ptr() as *mut str)
+            Unique::new_unchecked(bytes.as_ptr() as *mut str)
         };
         Box(ptr, A::default())
     }
