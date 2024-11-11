@@ -77,7 +77,7 @@ impl<T: ?Sized> Unique<T> {
     pub const unsafe fn as_ref(&self) -> &T {
         // SAFETY: the caller must guarantee that `self` meets all the
         // requirements for a reference.
-        unsafe { self.pointer.as_ref() }
+        unsafe { &*(self.as_ptr() as *const T) }
     }
 
     /// Mutably dereferences the content.
