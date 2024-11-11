@@ -1,6 +1,6 @@
 [package]
 name = "allocator-api2-tests"
-version = "0.2.19"
+version = "0.2.20"
 edition = "2018"
 description = "Tests for allocators that implement the allocator API"
 license = "MIT OR Apache-2.0"
@@ -13,4 +13,4 @@ rust-version = "1.63"
 nightly = ["allocator-api2/nightly"]
 
 [dependencies]
-allocator-api2 = { version = "=0.2.19", path = ".." }
+allocator-api2 = { version = "=0.2.20", path = ".." }
