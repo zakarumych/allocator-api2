@@ -584,13 +584,16 @@ impl<T, A: Allocator> Box<T, A> {
     /// ```
     #[inline(always)]
     pub fn into_inner(boxed: Self) -> T {
+        // Override our default `Drop` implementation.
+        // Though the default `Drop` implementation drops the both the pointer and the allocator,
+        // here we only want to drop the allocator.
+        let boxed = mem::ManuallyDrop::new(boxed);
+        let alloc = unsafe { ptr::read(&boxed.1) };
+
         let ptr = boxed.0;
         let unboxed = unsafe { ptr.as_ptr().read() };
-        unsafe {
-            boxed
-                .1
-                .deallocate(ptr.as_non_null_ptr().cast(), Layout::new::<T>())
-        };
+        unsafe { alloc.deallocate(ptr.as_non_null_ptr().cast(), Layout::new::<T>()) };
+
         unboxed
     }
 }
