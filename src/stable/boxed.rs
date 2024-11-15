@@ -591,6 +591,13 @@ impl<T, A: Allocator> Box<T, A> {
                 .1
                 .deallocate(ptr.as_non_null_ptr().cast(), Layout::new::<T>())
         };
+
+        // Override our default `Drop` implementation.
+        // Though the default `Drop` implementation drops the both the pointer and the allocator,
+        // here we only want to drop the allocator.
+        let _ = unsafe { ptr::read(&boxed.1) };
+        mem::forget(boxed);
+
         unboxed
     }
 }
