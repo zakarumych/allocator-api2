@@ -245,7 +245,7 @@ impl<T> Box<T> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// #![feature(new_zeroed_alloc)]
     ///
     /// let zero = Box::<u32>::new_zeroed();
     /// let zero = unsafe { zero.assume_init() };
@@ -635,7 +635,7 @@ impl<T> Box<[T]> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// #![feature(new_zeroed_alloc)]
     ///
     /// let values = Box::<[u32]>::new_zeroed_slice(3);
     /// let values = unsafe { values.assume_init() };
@@ -907,7 +907,7 @@ impl<T, A: Allocator> Box<mem::MaybeUninit<T>, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// #![feature(box_uninit_write)]
     ///
     /// let big_box = Box::<[usize; 1024]>::new_uninit();
     ///
