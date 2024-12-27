@@ -1018,6 +1018,58 @@ impl<T: ?Sized> Box<T> {
     pub unsafe fn from_raw(raw: *mut T) -> Self {
         unsafe { Self::from_raw_in(raw, Global) }
     }
+
+    /// Constructs a box from a `NonNull` pointer.
+    ///
+    /// After calling this function, the `NonNull` pointer is owned by
+    /// the resulting `Box`. Specifically, the `Box` destructor will call
+    /// the destructor of `T` and free the allocated memory. For this
+    /// to be safe, the memory must have been allocated in accordance
+    /// with the [memory layout] used by `Box` .
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because improper use may lead to
+    /// memory problems. For example, a double-free may occur if the
+    /// function is called twice on the same `NonNull` pointer.
+    ///
+    /// The safety conditions are described in the [memory layout] section.
+    ///
+    /// # Examples
+    ///
+    /// Recreate a `Box` which was previously converted to a `NonNull`
+    /// pointer using [`Box::into_non_null`]:
+    /// ```
+    /// #![feature(box_vec_non_null)]
+    ///
+    /// let x = Box::new(5);
+    /// let non_null = Box::into_non_null(x);
+    /// let x = unsafe { Box::from_non_null(non_null) };
+    /// ```
+    /// Manually create a `Box` from scratch by using the global allocator:
+    /// ```
+    /// #![feature(box_vec_non_null)]
+    ///
+    /// use std::alloc::{alloc, Layout};
+    /// use std::ptr::NonNull;
+    ///
+    /// unsafe {
+    ///     let non_null = NonNull::new(alloc(Layout::new::<i32>()).cast::<i32>())
+    ///         .expect("allocation failed");
+    ///     // In general .write is required to avoid attempting to destruct
+    ///     // the (uninitialized) previous contents of `non_null`.
+    ///     non_null.write(5);
+    ///     let x = Box::from_non_null(non_null);
+    /// }
+    /// ```
+    ///
+    /// [memory layout]: self#memory-layout
+    /// [`Layout`]: crate::Layout
+    #[inline(always)]
+    #[must_use = "call `drop(Box::from_non_null(ptr))` if you intend to drop the `Box`"]
+    pub unsafe fn from_non_null(ptr: NonNull<T>) -> Self {
+        unsafe { Self::from_raw(ptr.as_ptr()) }
+    }
 }
 
 impl<T: ?Sized, A: Allocator> Box<T, A> {
