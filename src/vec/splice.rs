@@ -1,7 +1,7 @@
 use core::ptr::{self};
 use core::slice::{self};
 
-use crate::stable::alloc::{Allocator, Global};
+use crate::alloc::{Allocator, Global};
 
 use super::{Drain, Vec};
 

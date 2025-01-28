@@ -6,7 +6,7 @@ use core::mem::{self, size_of, ManuallyDrop};
 use core::ptr::{self, NonNull};
 use core::slice::{self};
 
-use crate::stable::addr;
+use crate::addr;
 
 use super::{Allocator, Global, RawVec};
 
