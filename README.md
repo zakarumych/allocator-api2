@@ -7,16 +7,16 @@
 ![loc](https://img.shields.io/tokei/lines/github/zakarumych/allocator-api2?style=for-the-badge)
 
 This crate mirrors types and traits from Rust's unstable [`allocator_api`]
-The intention of this crate is to serve as substitution for actual thing
-for libs when build on stable and beta channels.
+The intention of this crate is to serve as a substitution for the actual thing
+for libs when built on stable and beta channels.
 The target users are library authors who implement allocators or collection types
-that use allocators, or anyone else who wants using [`allocator_api`]
+that use allocators, or anyone else who wants to use [`allocator_api`]
 
-The crate should be frequently updated with minor version bump.
-When [`allocator_api`] is stable this crate will get version `1.0` and simply
+The crate should be frequently updated with a minor version bump.
+When [`allocator_api`] is stable, this crate will get version `1.0` and simply
 re-export from `core`, `alloc` and `std`.
 
-The code is mostly verbatim copy from rust repository.
+The code is mostly a verbatim copy from rust repository.
 Mostly attributes are removed.
 
 ## Usage
@@ -24,7 +24,7 @@ Mostly attributes are removed.
 This section describes how to use this crate correctly to ensure
 compatibility and interoperability on both stable and nightly channels.
 
-If you are writing a library that interacts with allocators API, you can
+If you are writing a library that interacts with an allocator API, you can
 add this crate as a dependency and use the types and traits from this
 crate instead of the ones in `core` or `alloc`.
 This will allow your library to compile on stable and beta channels.
