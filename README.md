@@ -34,18 +34,11 @@ API provided by this crate when your crate is built on the nightly channel,
 you can do so by adding a `nightly` feature to your crate and taking the
 following steps.
 
-Add the following lines to the crate root:
+Add the following line to the crate root:
 
 ```rust
 #![cfg_attr(feature = "nightly", feature(allocator_api))]
-#[cfg(feature = "nightly")]
-extern crate alloc;
 ```
-
-The `extern crate alloc` statement can be replaced with `extern crate core` if
-only items from `core` are required, and if the desired crate is already being
-pulled in otherwise, it need not be repeated with the
-`#[cfg(feature = "nightly")]` flag.
 
 Next, wherever `allocator-api2` is used, lock the import behind a
 `#[cfg(not(feature = "nightly"))]` statement and add an import of the equivalent
@@ -56,7 +49,7 @@ statement. For example:
 #[cfg(not(feature = "nightly"))]
 use allocator_api2::alloc::Allocator;
 #[cfg(feature = "nightly")]
-use alloc::alloc::Allocator;
+use std::alloc::Allocator;
 ```
 
 Alternatively, one could add similar statements to a module, export them with
@@ -69,6 +62,11 @@ provided by `allocator-api2`. Note that this is not necessary to build a crate
 depending on `allocator-api2` on the nightly channel: Without this setup, the
 crate will simply continue to use the API provided by `allocator-api2` even when
 built on the nightly channel.
+
+If you depend on a crate that implements the above instructions and exposes
+API from the allocator API directly, you may need to enable
+`#![feature(allocator_api)]` in your crate when the dependency has the `nightly`
+feature enabled.
 
 ### Note about older `allocator-api2` versions
 
