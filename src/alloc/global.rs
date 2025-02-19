@@ -2,7 +2,7 @@ use core::ptr::NonNull;
 
 use alloc_crate::alloc::{alloc, alloc_zeroed, dealloc, realloc};
 
-use crate::stable::{assume, invalid_mut};
+use crate::{assume, invalid_mut};
 
 use super::{AllocError, Allocator, Layout};
 

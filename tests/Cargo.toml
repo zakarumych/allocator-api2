@@ -10,7 +10,7 @@ repository = "https://github.com/zakarumych/allocator-api2"
 rust-version = "1.63"
 
 [features]
-nightly = ["allocator-api2/nightly"]
+nightly = []
 
 [dependencies]
 allocator-api2 = { version = "=0.2.21", path = ".." }

@@ -1,7 +1,7 @@
 use core::ptr::NonNull;
 pub use std::alloc::System;
 
-use crate::stable::{assume, invalid_mut};
+use crate::{assume, invalid_mut};
 
 use super::{AllocError, Allocator, GlobalAlloc as _, Layout};
 
