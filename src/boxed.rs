@@ -2227,7 +2227,7 @@ impl From<&std::ffi::CStr> for Box<std::ffi::CStr> {
 }
 
 #[cfg(not(no_global_oom_handling))]
-#[cfg(feature = "fresh-rust")]
+#[cfg(all(feature = "fresh-rust", not(feature = "std")))]
 impl Clone for Box<core::ffi::CStr> {
     #[inline]
     fn clone(&self) -> Self {
@@ -2236,7 +2236,7 @@ impl Clone for Box<core::ffi::CStr> {
 }
 
 #[cfg(not(no_global_oom_handling))]
-#[cfg(feature = "fresh-rust")]
+#[cfg(all(feature = "fresh-rust", not(feature = "std")))]
 impl From<&core::ffi::CStr> for Box<core::ffi::CStr> {
     /// Converts a `&CStr` into a `Box<CStr>`,
     /// by copying the contents into a newly allocated [`Box`].
