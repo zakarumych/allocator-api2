@@ -2,7 +2,12 @@
 
 use std::alloc::Layout;
 
+#[cfg(not(feature = "nightly"))]
 use allocator_api2::{alloc::Allocator, boxed::Box, vec::Vec};
+#[cfg(feature = "nightly")]
+extern crate alloc as alloc_crate;
+#[cfg(feature = "nightly")]
+use alloc_crate::{alloc::Allocator, boxed::Box, vec::Vec};
 
 #[macro_export]
 macro_rules! make_test {

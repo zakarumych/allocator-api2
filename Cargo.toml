@@ -15,7 +15,6 @@ rust-version = "1.63"
 alloc = []
 std = ["alloc"]
 default = ["std"]
-nightly = []
 fresh-rust = []
 
 [dependencies]
