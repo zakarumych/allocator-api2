@@ -245,7 +245,7 @@ impl<T> Box<T> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// #![feature(new_zeroed_alloc)]
     ///
     /// let zero = Box::<u32>::new_zeroed();
     /// let zero = unsafe { zero.assume_init() };
@@ -635,7 +635,7 @@ impl<T> Box<[T]> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// #![feature(new_zeroed_alloc)]
     ///
     /// let values = Box::<[u32]>::new_zeroed_slice(3);
     /// let values = unsafe { values.assume_init() };
@@ -907,7 +907,7 @@ impl<T, A: Allocator> Box<mem::MaybeUninit<T>, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// #![feature(box_uninit_write)]
     ///
     /// let big_box = Box::<[usize; 1024]>::new_uninit();
     ///
@@ -1018,6 +1018,58 @@ impl<T: ?Sized> Box<T> {
     pub unsafe fn from_raw(raw: *mut T) -> Self {
         unsafe { Self::from_raw_in(raw, Global) }
     }
+
+    /// Constructs a box from a `NonNull` pointer.
+    ///
+    /// After calling this function, the `NonNull` pointer is owned by
+    /// the resulting `Box`. Specifically, the `Box` destructor will call
+    /// the destructor of `T` and free the allocated memory. For this
+    /// to be safe, the memory must have been allocated in accordance
+    /// with the [memory layout] used by `Box` .
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because improper use may lead to
+    /// memory problems. For example, a double-free may occur if the
+    /// function is called twice on the same `NonNull` pointer.
+    ///
+    /// The safety conditions are described in the [memory layout] section.
+    ///
+    /// # Examples
+    ///
+    /// Recreate a `Box` which was previously converted to a `NonNull`
+    /// pointer using [`Box::into_non_null`]:
+    /// ```
+    /// #![feature(box_vec_non_null)]
+    ///
+    /// let x = Box::new(5);
+    /// let non_null = Box::into_non_null(x);
+    /// let x = unsafe { Box::from_non_null(non_null) };
+    /// ```
+    /// Manually create a `Box` from scratch by using the global allocator:
+    /// ```
+    /// #![feature(box_vec_non_null)]
+    ///
+    /// use std::alloc::{alloc, Layout};
+    /// use std::ptr::NonNull;
+    ///
+    /// unsafe {
+    ///     let non_null = NonNull::new(alloc(Layout::new::<i32>()).cast::<i32>())
+    ///         .expect("allocation failed");
+    ///     // In general .write is required to avoid attempting to destruct
+    ///     // the (uninitialized) previous contents of `non_null`.
+    ///     non_null.write(5);
+    ///     let x = Box::from_non_null(non_null);
+    /// }
+    /// ```
+    ///
+    /// [memory layout]: self#memory-layout
+    /// [`Layout`]: crate::Layout
+    #[inline(always)]
+    #[must_use = "call `drop(Box::from_non_null(ptr))` if you intend to drop the `Box`"]
+    pub unsafe fn from_non_null(ptr: NonNull<T>) -> Self {
+        unsafe { Self::from_raw(ptr.as_ptr()) }
+    }
 }
 
 impl<T: ?Sized, A: Allocator> Box<T, A> {
@@ -1071,6 +1123,58 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
         Box(unsafe { Unique::new_unchecked(raw) }, alloc)
     }
 
+    /// Constructs a box from a `NonNull` pointer in the given allocator.
+    ///
+    /// After calling this function, the `NonNull` pointer is owned by
+    /// the resulting `Box`. Specifically, the `Box` destructor will call
+    /// the destructor of `T` and free the allocated memory. For this
+    /// to be safe, the memory must have been allocated in accordance
+    /// with the [memory layout] used by `Box` .
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because improper use may lead to
+    /// memory problems. For example, a double-free may occur if the
+    /// function is called twice on the same raw pointer.
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Recreate a `Box` which was previously converted to a `NonNull` pointer
+    /// using [`Box::into_non_null_with_allocator`]:
+    /// ```
+    /// #![feature(allocator_api, box_vec_non_null)]
+    ///
+    /// use std::alloc::System;
+    ///
+    /// let x = Box::new_in(5, System);
+    /// let (non_null, alloc) = Box::into_non_null_with_allocator(x);
+    /// let x = unsafe { Box::from_non_null_in(non_null, alloc) };
+    /// ```
+    /// Manually create a `Box` from scratch by using the system allocator:
+    /// ```
+    /// #![feature(allocator_api, box_vec_non_null, slice_ptr_get)]
+    ///
+    /// use std::alloc::{Allocator, Layout, System};
+    ///
+    /// unsafe {
+    ///     let non_null = System.allocate(Layout::new::<i32>())?.cast::<i32>();
+    ///     // In general .write is required to avoid attempting to destruct
+    ///     // the (uninitialized) previous contents of `non_null`.
+    ///     non_null.write(5);
+    ///     let x = Box::from_non_null_in(non_null, System);
+    /// }
+    /// # Ok::<(), std::alloc::AllocError>(())
+    /// ```
+    ///
+    /// [memory layout]: self#memory-layout
+    /// [`Layout`]: crate::Layout
+    #[inline(always)]
+    pub const unsafe fn from_non_null_in(raw: NonNull<T>, alloc: A) -> Self {
+        // SAFETY: guaranteed by the caller.
+        unsafe { Box::from_raw_in(raw.as_ptr(), alloc) }
+    }
+
     /// Consumes the `Box`, returning a wrapped raw pointer.
     ///
     /// The pointer will be properly aligned and non-null.
@@ -1113,6 +1217,65 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     #[inline(always)]
     pub fn into_raw(b: Self) -> *mut T {
         Self::into_raw_with_allocator(b).0
+    }
+
+    /// Consumes the `Box`, returning a wrapped `NonNull` pointer.
+    ///
+    /// The pointer will be properly aligned.
+    ///
+    /// After calling this function, the caller is responsible for the
+    /// memory previously managed by the `Box`. In particular, the
+    /// caller should properly destroy `T` and release the memory, taking
+    /// into account the [memory layout] used by `Box`. The easiest way to
+    /// do this is to convert the `NonNull` pointer back into a `Box` with the
+    /// [`Box::from_non_null`] function, allowing the `Box` destructor to
+    /// perform the cleanup.
+    ///
+    /// Note: this is an associated function, which means that you have
+    /// to call it as `Box::into_non_null(b)` instead of `b.into_non_null()`.
+    /// This is so that there is no conflict with a method on the inner type.
+    ///
+    /// # Examples
+    /// Converting the `NonNull` pointer back into a `Box` with [`Box::from_non_null`]
+    /// for automatic cleanup:
+    /// ```
+    /// #![feature(box_vec_non_null)]
+    ///
+    /// let x = Box::new(String::from("Hello"));
+    /// let non_null = Box::into_non_null(x);
+    /// let x = unsafe { Box::from_non_null(non_null) };
+    /// ```
+    /// Manual cleanup by explicitly running the destructor and deallocating
+    /// the memory:
+    /// ```
+    /// #![feature(box_vec_non_null)]
+    ///
+    /// use std::alloc::{dealloc, Layout};
+    ///
+    /// let x = Box::new(String::from("Hello"));
+    /// let non_null = Box::into_non_null(x);
+    /// unsafe {
+    ///     non_null.drop_in_place();
+    ///     dealloc(non_null.as_ptr().cast::<u8>(), Layout::new::<String>());
+    /// }
+    /// ```
+    /// Note: This is equivalent to the following:
+    /// ```
+    /// #![feature(box_vec_non_null)]
+    ///
+    /// let x = Box::new(String::from("Hello"));
+    /// let non_null = Box::into_non_null(x);
+    /// unsafe {
+    ///     drop(Box::from_non_null(non_null));
+    /// }
+    /// ```
+    ///
+    /// [memory layout]: self#memory-layout
+    #[must_use = "losing the pointer will leak memory"]
+    #[inline(always)]
+    pub fn into_non_null(b: Self) -> NonNull<T> {
+        // SAFETY: `Box` is guaranteed to be non-null.
+        unsafe { NonNull::new_unchecked(Self::into_raw(b)) }
     }
 
     /// Consumes the `Box`, returning a wrapped raw pointer and the allocator.
@@ -1163,12 +1326,57 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// [memory layout]: self#memory-layout
     #[inline(always)]
     pub fn into_raw_with_allocator(b: Self) -> (*mut T, A) {
-        let (leaked, alloc) = Box::into_non_null(b);
+        let (leaked, alloc) = Box::into_non_null_with_allocator(b);
         (leaked.as_ptr(), alloc)
     }
 
+    /// Consumes the `Box`, returning a wrapped `NonNull` pointer and the allocator.
+    ///
+    /// The pointer will be properly aligned.
+    ///
+    /// After calling this function, the caller is responsible for the
+    /// memory previously managed by the `Box`. In particular, the
+    /// caller should properly destroy `T` and release the memory, taking
+    /// into account the [memory layout] used by `Box`. The easiest way to
+    /// do this is to convert the `NonNull` pointer back into a `Box` with the
+    /// [`Box::from_non_null_in`] function, allowing the `Box` destructor to
+    /// perform the cleanup.
+    ///
+    /// Note: this is an associated function, which means that you have
+    /// to call it as `Box::into_non_null_with_allocator(b)` instead of
+    /// `b.into_non_null_with_allocator()`. This is so that there is no
+    /// conflict with a method on the inner type.
+    ///
+    /// # Examples
+    /// Converting the `NonNull` pointer back into a `Box` with
+    /// [`Box::from_non_null_in`] for automatic cleanup:
+    /// ```
+    /// #![feature(allocator_api, box_vec_non_null)]
+    ///
+    /// use std::alloc::System;
+    ///
+    /// let x = Box::new_in(String::from("Hello"), System);
+    /// let (non_null, alloc) = Box::into_non_null_with_allocator(x);
+    /// let x = unsafe { Box::from_non_null_in(non_null, alloc) };
+    /// ```
+    /// Manual cleanup by explicitly running the destructor and deallocating
+    /// the memory:
+    /// ```
+    /// #![feature(allocator_api, box_vec_non_null)]
+    ///
+    /// use std::alloc::{Allocator, Layout, System};
+    ///
+    /// let x = Box::new_in(String::from("Hello"), System);
+    /// let (non_null, alloc) = Box::into_non_null_with_allocator(x);
+    /// unsafe {
+    ///     non_null.drop_in_place();
+    ///     alloc.deallocate(non_null.cast::<u8>(), Layout::new::<String>());
+    /// }
+    /// ```
+    ///
+    /// [memory layout]: self#memory-layout
     #[inline(always)]
-    pub fn into_non_null(b: Self) -> (NonNull<T>, A) {
+    pub fn into_non_null_with_allocator(b: Self) -> (NonNull<T>, A) {
         // Box is recognized as a "unique pointer" by Stacked Borrows, but internally it is a
         // raw pointer for the type system. Turning it directly into a raw pointer would not be
         // recognized as "releasing" the unique pointer to permit aliased raw accesses,
@@ -1176,6 +1384,90 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
         // behaves correctly.
         let alloc = unsafe { ptr::read(&b.1) };
         (NonNull::from(Box::leak(b)), alloc)
+    }
+    /// Returns a raw mutable pointer to the `Box`'s contents.
+    ///
+    /// The caller must ensure that the `Box` outlives the pointer this
+    /// function returns, or else it will end up dangling.
+    ///
+    /// This method guarantees that for the purpose of the aliasing model, this method
+    /// does not materialize a reference to the underlying memory, and thus the returned pointer
+    /// will remain valid when mixed with other calls to [`as_ptr`] and [`as_mut_ptr`].
+    /// Note that calling other methods that materialize references to the memory
+    /// may still invalidate this pointer.
+    /// See the example below for how this guarantee can be used.
+    ///
+    /// # Examples
+    ///
+    /// Due to the aliasing guarantee, the following code is legal:
+    ///
+    /// ```rust
+    /// #![feature(box_as_ptr)]
+    ///
+    /// unsafe {
+    ///     let mut b = Box::new(0);
+    ///     let ptr1 = Box::as_mut_ptr(&mut b);
+    ///     ptr1.write(1);
+    ///     let ptr2 = Box::as_mut_ptr(&mut b);
+    ///     ptr2.write(2);
+    ///     // Notably, the write to `ptr2` did *not* invalidate `ptr1`:
+    ///     ptr1.write(3);
+    /// }
+    /// ```
+    ///
+    /// [`as_mut_ptr`]: Self::as_mut_ptr
+    /// [`as_ptr`]: Self::as_ptr
+    #[inline(always)]
+    pub fn as_mut_ptr(b: &mut Self) -> *mut T {
+        // This is a primitive deref, not going through `DerefMut`, and therefore not materializing
+        // any references.
+        &raw mut **b
+    }
+
+    /// Returns a raw pointer to the `Box`'s contents.
+    ///
+    /// The caller must ensure that the `Box` outlives the pointer this
+    /// function returns, or else it will end up dangling.
+    ///
+    /// The caller must also ensure that the memory the pointer (non-transitively) points to
+    /// is never written to (except inside an `UnsafeCell`) using this pointer or any pointer
+    /// derived from it. If you need to mutate the contents of the `Box`, use [`as_mut_ptr`].
+    ///
+    /// This method guarantees that for the purpose of the aliasing model, this method
+    /// does not materialize a reference to the underlying memory, and thus the returned pointer
+    /// will remain valid when mixed with other calls to [`as_ptr`] and [`as_mut_ptr`].
+    /// Note that calling other methods that materialize mutable references to the memory,
+    /// as well as writing to this memory, may still invalidate this pointer.
+    /// See the example below for how this guarantee can be used.
+    ///
+    /// # Examples
+    ///
+    /// Due to the aliasing guarantee, the following code is legal:
+    ///
+    /// ```rust
+    /// #![feature(box_as_ptr)]
+    ///
+    /// unsafe {
+    ///     let mut v = Box::new(0);
+    ///     let ptr1 = Box::as_ptr(&v);
+    ///     let ptr2 = Box::as_mut_ptr(&mut v);
+    ///     let _val = ptr2.read();
+    ///     // No write to this memory has happened yet, so `ptr1` is still valid.
+    ///     let _val = ptr1.read();
+    ///     // However, once we do a write...
+    ///     ptr2.write(1);
+    ///     // ... `ptr1` is no longer valid.
+    ///     // This would be UB: let _val = ptr1.read();
+    /// }
+    /// ```
+    ///
+    /// [`as_mut_ptr`]: Self::as_mut_ptr
+    /// [`as_ptr`]: Self::as_ptr
+    #[inline(always)]
+    pub fn as_ptr(b: &Self) -> *const T {
+        // This is a primitive deref, not going through `DerefMut`, and therefore not materializing
+        // any references.
+        &raw const **b
     }
 
     /// Returns a reference to the underlying allocator.
