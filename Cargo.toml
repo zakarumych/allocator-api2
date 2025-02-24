@@ -1,6 +1,6 @@
 [package]
 name = "allocator-api2"
-version = "0.2.16"
+version = "0.2.21"
 edition = "2018"
 authors = ["Zakarum <zaq.dev@icloud.com>"]
 license = "MIT OR Apache-2.0"
@@ -15,10 +15,15 @@ rust-version = "1.64.0"
 alloc = []
 std = ["alloc"]
 default = ["std"]
-nightly = []
+fresh-rust = []
 
 [dependencies]
 serde = { version = "1.0", optional = true }
 
 [workspace]
 members = ["tests"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(no_global_oom_handling)',
+] }

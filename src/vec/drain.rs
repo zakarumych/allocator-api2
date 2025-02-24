@@ -4,7 +4,7 @@ use core::mem::{self, size_of, ManuallyDrop};
 use core::ptr::{self, NonNull};
 use core::slice::{self};
 
-use crate::stable::alloc::{Allocator, Global};
+use crate::alloc::{Allocator, Global};
 
 use super::Vec;
 

@@ -6,7 +6,7 @@ use core::mem::{self, size_of, ManuallyDrop};
 use core::ptr::{self, NonNull};
 use core::slice::{self};
 
-use crate::stable::addr;
+use crate::addr;
 
 use super::{Allocator, Global, RawVec};
 
@@ -156,13 +156,6 @@ impl<T, A: Allocator> DoubleEndedIterator for IntoIter<T, A> {
 impl<T, A: Allocator> ExactSizeIterator for IntoIter<T, A> {}
 
 impl<T, A: Allocator> FusedIterator for IntoIter<T, A> {}
-
-#[doc(hidden)]
-pub trait NonDrop {}
-
-// T: Copy as approximation for !Drop since get_unchecked does not advance self.ptr
-// and thus we can't implement drop-handling
-impl<T: Copy> NonDrop for T {}
 
 #[cfg(not(no_global_oom_handling))]
 impl<T: Clone, A: Allocator + Clone> Clone for IntoIter<T, A> {
