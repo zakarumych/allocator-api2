@@ -1419,9 +1419,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// [`as_ptr`]: Self::as_ptr
     #[inline(always)]
     pub fn as_mut_ptr(b: &mut Self) -> *mut T {
-        // This is a primitive deref, not going through `DerefMut`, and therefore not materializing
-        // any references.
-        &raw mut **b
+        b.0.as_ptr()
     }
 
     /// Returns a raw pointer to the `Box`'s contents.
@@ -1465,9 +1463,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// [`as_ptr`]: Self::as_ptr
     #[inline(always)]
     pub fn as_ptr(b: &Self) -> *const T {
-        // This is a primitive deref, not going through `DerefMut`, and therefore not materializing
-        // any references.
-        &raw const **b
+        b.0.as_ptr()
     }
 
     /// Returns a reference to the underlying allocator.
