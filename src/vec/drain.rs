@@ -16,8 +16,10 @@ use super::Vec;
 /// # Example
 ///
 /// ```
+/// use allocator_api2::vec;
+///
 /// let mut v = vec![0, 1, 2];
-/// let iter: std::vec::Drain<_> = v.drain(..);
+/// let iter: vec::Drain<_> = v.drain(..);
 /// ```
 pub struct Drain<'a, T: 'a, A: Allocator + 'a = Global> {
     /// Index of tail to preserve
@@ -41,6 +43,8 @@ impl<'a, T, A: Allocator> Drain<'a, T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec!['a', 'b', 'c'];
     /// let mut drain = vec.drain(..);
     /// assert_eq!(drain.as_slice(), &['a', 'b', 'c']);
@@ -65,7 +69,7 @@ impl<'a, T, A: Allocator> Drain<'a, T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(drain_keep_rest)]
+    /// use allocator_api2::vec;
     ///
     /// let mut vec = vec!['a', 'b', 'c'];
     /// let mut drain = vec.drain(..);

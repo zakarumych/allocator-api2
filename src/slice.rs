@@ -10,8 +10,10 @@ pub trait SliceExt<T> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::SliceExt;
+    ///
     /// let s = [10, 40, 30];
-    /// let x = s.to_vec();
+    /// let x = SliceExt::to_vec(&s[..]);
     /// // Here, `s` and `x` can be modified independently.
     /// ```
     #[cfg(not(no_global_oom_handling))]
@@ -28,12 +30,10 @@ pub trait SliceExt<T> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{SliceExt, alloc::System};
     ///
     /// let s = [10, 40, 30];
-    /// let x = s.to_vec_in(System);
+    /// let x = SliceExt::to_vec_in(&s[..], System);
     /// // Here, `s` and `x` can be modified independently.
     /// ```
     #[cfg(not(no_global_oom_handling))]
@@ -52,7 +52,9 @@ pub trait SliceExt<T> {
     /// Basic usage:
     ///
     /// ```
-    /// assert_eq!([1, 2].repeat(3), vec![1, 2, 1, 2, 1, 2]);
+    /// use allocator_api2::{SliceExt, vec};
+    ///
+    /// assert_eq!(SliceExt::repeat(&[1, 2][..], 3), vec![1, 2, 1, 2, 1, 2]);
     /// ```
     ///
     /// A panic upon overflow:

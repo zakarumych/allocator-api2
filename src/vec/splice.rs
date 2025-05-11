@@ -13,9 +13,11 @@ use super::{Drain, Vec};
 /// # Example
 ///
 /// ```
+/// use allocator_api2::vec;
+///
 /// let mut v = vec![0, 1, 2];
 /// let new = [7, 8];
-/// let iter: std::vec::Splice<_> = v.splice(1.., new);
+/// let iter: vec::Splice<_> = v.splice(1.., new);
 /// ```
 #[derive(Debug)]
 pub struct Splice<'a, I: Iterator + 'a, A: Allocator + 'a = Global> {
