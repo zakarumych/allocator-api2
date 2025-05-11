@@ -1042,9 +1042,9 @@ impl<T: ?Sized> Box<T> {
     /// ```
     /// Manually create a `Box` from scratch by using the global allocator:
     /// ```
-    /// use allocator_api2::{boxed::Box, alloc::{alloc, Layout}};
-    ///
     /// use std::ptr::NonNull;
+    ///
+    /// use allocator_api2::{boxed::Box, alloc::{alloc, Layout}};
     ///
     /// unsafe {
     ///     let non_null = NonNull::new(alloc(Layout::new::<i32>()).cast::<i32>())
@@ -1191,9 +1191,9 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Manual cleanup by explicitly running the destructor and deallocating
     /// the memory:
     /// ```
-    /// use allocator_api2::{boxed::Box, alloc::{dealloc, Layout}};
-    ///
     /// use std::ptr;
+    ///
+    /// use allocator_api2::{boxed::Box, alloc::{dealloc, Layout}};
     ///
     /// let x = Box::new(String::from("Hello"));
     /// let p = Box::into_raw(x);
@@ -1295,9 +1295,9 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Manual cleanup by explicitly running the destructor and deallocating
     /// the memory:
     /// ```
-    /// use allocator_api2::{boxed::Box, alloc::{Allocator, Layout, System}};
-    ///
     /// use std::ptr::{self, NonNull};
+    ///
+    /// use allocator_api2::{boxed::Box, alloc::{Allocator, Layout, System}};
     ///
     /// let x = Box::new_in(String::from("Hello"), System);
     /// let (ptr, alloc) = Box::into_raw_with_allocator(x);
