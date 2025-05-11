@@ -10,6 +10,8 @@
 //! Move a value from the stack to the heap by creating a [`Box`]:
 //!
 //! ```
+//! use allocator_api2::boxed::Box;
+//!
 //! let val: u8 = 5;
 //! let boxed: Box<u8> = Box::new(val);
 //! ```
@@ -17,6 +19,8 @@
 //! Move a value from a [`Box`] back to the stack by [dereferencing]:
 //!
 //! ```
+//! use allocator_api2::boxed::Box;
+//!
 //! let boxed: Box<u8> = Box::new(5);
 //! let val: u8 = *boxed;
 //! ```
@@ -24,6 +28,8 @@
 //! Creating a recursive data structure:
 //!
 //! ```
+//! use allocator_api2::boxed::Box;
+//!
 //! #[derive(Debug)]
 //! enum List<T> {
 //!     Cons(T, Box<List<T>>),
@@ -95,6 +101,8 @@
 //! cannot be null.
 //!
 //! ```
+//! use allocator_api2::boxed::Box;
+//!
 //! #[repr(C)]
 //! pub struct Foo;
 //!
@@ -1134,8 +1142,6 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// ```
     /// Manually create a `Box` from scratch by using the system allocator:
     /// ```
-    /// #![feature(allocator_api, box_vec_non_null, slice_ptr_get)]
-    ///
     /// use allocator_api2::{boxed::Box, alloc::{Allocator, Layout, System}};
     ///
     /// unsafe {
@@ -1472,6 +1478,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Simple usage:
     ///
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = Box::new(41);
     /// let static_ref: &'static mut usize = Box::leak(x);
     /// *static_ref += 1;
@@ -1514,6 +1522,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     ///
     /// ```compile_fail
     /// # use std::pin::Pin;
+    /// use allocator_api2::boxed::Box;
+    ///
     /// struct Foo; // A type defined in this crate.
     /// impl From<Box<()>> for Pin<Foo> {
     ///     fn from(_: Box<()>) -> Pin<Foo> {
@@ -1583,6 +1593,8 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = Box::new(5);
     /// let y = x.clone();
     ///
@@ -1607,6 +1619,8 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = Box::new(5);
     /// let mut y = Box::new(10);
     /// let yp: *const i32 = &*y;
@@ -1959,11 +1973,11 @@ impl<A: Allocator> Box<dyn Any, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(downcast_unchecked)]
-    ///
     /// use std::any::Any;
     ///
-    /// let x: Box<dyn Any> = Box::new(1_usize);
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
+    /// let x: Box<dyn Any> = unsize_box!(Box::new(1_usize));
     ///
     /// unsafe {
     ///     assert_eq!(*x.downcast_unchecked::<usize>(), 1);
@@ -1994,6 +2008,8 @@ impl<A: Allocator> Box<dyn Any + Send, A> {
     /// ```
     /// use std::any::Any;
     ///
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
     /// fn print_if_string(value: Box<dyn Any + Send>) {
     ///     if let Ok(string) = value.downcast::<String>() {
     ///         println!("String ({}): {}", string.len(), string);
@@ -2001,8 +2017,8 @@ impl<A: Allocator> Box<dyn Any + Send, A> {
     /// }
     ///
     /// let my_string = "Hello World".to_string();
-    /// print_if_string(Box::new(my_string));
-    /// print_if_string(Box::new(0i8));
+    /// print_if_string(unsize_box!(Box::new(my_string)));
+    /// print_if_string(unsize_box!(Box::new(0i8)));
     /// ```
     #[inline(always)]
     pub fn downcast<T: Any>(self) -> Result<Box<T, A>, Self> {
@@ -2020,11 +2036,11 @@ impl<A: Allocator> Box<dyn Any + Send, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(downcast_unchecked)]
-    ///
     /// use std::any::Any;
     ///
-    /// let x: Box<dyn Any + Send> = Box::new(1_usize);
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
+    /// let x: Box<dyn Any + Send> = unsize_box!(Box::new(1_usize));
     ///
     /// unsafe {
     ///     assert_eq!(*x.downcast_unchecked::<usize>(), 1);
@@ -2055,6 +2071,8 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
     /// ```
     /// use std::any::Any;
     ///
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
     /// fn print_if_string(value: Box<dyn Any + Send + Sync>) {
     ///     if let Ok(string) = value.downcast::<String>() {
     ///         println!("String ({}): {}", string.len(), string);
@@ -2062,8 +2080,8 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
     /// }
     ///
     /// let my_string = "Hello World".to_string();
-    /// print_if_string(Box::new(my_string));
-    /// print_if_string(Box::new(0i8));
+    /// print_if_string(unsize_box!(Box::new(my_string)));
+    /// print_if_string(unsize_box!(Box::new(0i8)));
     /// ```
     #[inline(always)]
     pub fn downcast<T: Any>(self) -> Result<Box<T, A>, Self> {
@@ -2081,11 +2099,11 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(downcast_unchecked)]
-    ///
     /// use std::any::Any;
     ///
-    /// let x: Box<dyn Any + Send + Sync> = Box::new(1_usize);
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
+    /// let x: Box<dyn Any + Send + Sync> = unsize_box!(Box::new(1_usize));
     ///
     /// unsafe {
     ///     assert_eq!(*x.downcast_unchecked::<usize>(), 1);
@@ -2321,6 +2339,8 @@ mod error {
         /// use std::fmt;
         /// use std::mem;
         ///
+        /// use allocator_api2::boxed::Box;
+        ///
         /// #[derive(Debug)]
         /// struct AnError;
         ///
@@ -2354,6 +2374,8 @@ mod error {
         /// use std::error::Error;
         /// use std::fmt;
         /// use std::mem;
+        ///
+        /// use allocator_api2::boxed::Box;
         ///
         /// #[derive(Debug)]
         /// struct AnError;
