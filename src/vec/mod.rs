@@ -728,7 +728,7 @@ impl<T, A: Allocator> Vec<T, A> {
     ///
     /// Using memory that was allocated elsewhere:
     ///
-    /// ```rust
+    /// ```
     /// use allocator_api2::{vec::Vec, alloc::{alloc, Layout}};
     ///
     /// fn main() {
