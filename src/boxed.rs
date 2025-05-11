@@ -1489,6 +1489,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Unsized data:
     ///
     /// ```
+    /// use allocator_api2::{vec, boxed::Box};
+    ///
     /// let x = vec![1, 2, 3].into_boxed_slice();
     /// let static_ref = Box::leak(x);
     /// static_ref[0] = 4;
