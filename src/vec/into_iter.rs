@@ -21,8 +21,10 @@ use super::Vec;
 /// # Example
 ///
 /// ```
+/// use allocator_api2::vec;
+///
 /// let v = vec![0, 1, 2];
-/// let iter: std::vec::IntoIter<_> = v.into_iter();
+/// let iter: vec::IntoIter<_> = v.into_iter();
 /// ```
 pub struct IntoIter<T, A: Allocator = Global> {
     pub(super) buf: NonNull<T>,

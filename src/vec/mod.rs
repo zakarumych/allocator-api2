@@ -11,12 +11,16 @@
 //! You can explicitly create a [`Vec`] with [`Vec::new`]:
 //!
 //! ```
+//! use allocator_api2::vec::Vec;
+//!
 //! let v: Vec<i32> = Vec::new();
 //! ```
 //!
 //! ...or by using the [`vec!`] macro:
 //!
 //! ```
+//! use allocator_api2::{vec, vec::Vec};
+//!
 //! let v: Vec<i32> = vec![];
 //!
 //! let v = vec![1, 2, 3, 4, 5];
@@ -28,6 +32,8 @@
 //! as needed):
 //!
 //! ```
+//! use allocator_api2::vec;
+//!
 //! let mut v = vec![1, 2];
 //!
 //! v.push(3);
@@ -36,6 +42,8 @@
 //! Popping values works in much the same way:
 //!
 //! ```
+//! use allocator_api2::vec;
+//!
 //! let mut v = vec![1, 2];
 //!
 //! let two = v.pop();
@@ -44,6 +52,8 @@
 //! Vectors also support indexing (through the [`Index`] and [`IndexMut`] traits):
 //!
 //! ```
+//! use allocator_api2::vec;
+//!
 //! let mut v = vec![1, 2, 3];
 //! let three = v[2];
 //! v[1] = v[1] + 5;
@@ -104,6 +114,8 @@ use self::set_len_on_drop::SetLenOnDrop;
 /// # Examples
 ///
 /// ```
+/// use allocator_api2::vec::Vec;
+///
 /// let mut vec = Vec::new();
 /// vec.push(1);
 /// vec.push(2);
@@ -128,6 +140,8 @@ use self::set_len_on_drop::SetLenOnDrop;
 /// The [`vec!`] macro is provided for convenient initialization:
 ///
 /// ```
+/// use allocator_api2::{vec, vec::Vec};
+///
 /// let mut vec1 = vec![1, 2, 3];
 /// vec1.push(4);
 /// let vec2 = Vec::from([1, 2, 3, 4]);
@@ -139,6 +153,8 @@ use self::set_len_on_drop::SetLenOnDrop;
 /// in separate steps, especially when initializing a vector of zeros:
 ///
 /// ```
+/// use allocator_api2::{vec, vec::Vec};
+///
 /// let vec = vec![0; 5];
 /// assert_eq!(vec, [0, 0, 0, 0, 0]);
 ///
@@ -154,6 +170,8 @@ use self::set_len_on_drop::SetLenOnDrop;
 /// Use a `Vec<T>` as an efficient stack:
 ///
 /// ```
+/// use allocator_api2::vec::Vec;
+///
 /// let mut stack = Vec::new();
 ///
 /// stack.push(1);
@@ -172,6 +190,8 @@ use self::set_len_on_drop::SetLenOnDrop;
 /// [`Index`] trait. An example will be more explicit:
 ///
 /// ```
+/// use allocator_api2::vec;
+///
 /// let v = vec![0, 2, 4, 6];
 /// println!("{}", v[1]); // it will display '2'
 /// ```
@@ -180,6 +200,8 @@ use self::set_len_on_drop::SetLenOnDrop;
 /// your software will panic! You cannot do this:
 ///
 /// ```should_panic
+/// use allocator_api2::vec;
+///
 /// let v = vec![0, 2, 4, 6];
 /// println!("{}", v[6]); // it will panic!
 /// ```
@@ -193,6 +215,8 @@ use self::set_len_on_drop::SetLenOnDrop;
 /// To get a [slice][prim@slice], use [`&`]. Example:
 ///
 /// ```
+/// use allocator_api2::vec;
+///
 /// fn read_slice(slice: &[usize]) {
 ///     // ...
 /// }
@@ -362,7 +386,8 @@ impl<T> Vec<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![allow(unused_mut)]
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// let mut vec: Vec<i32> = Vec::new();
     /// ```
     #[inline(always)]
@@ -401,6 +426,8 @@ impl<T> Vec<T> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec::Vec;
+    ///
     /// let mut vec = Vec::with_capacity(10);
     ///
     /// // The vector contains no items, even though it has capacity for more
@@ -479,6 +506,8 @@ impl<T> Vec<T> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// use std::ptr;
     /// use std::mem;
     ///
@@ -508,10 +537,8 @@ impl<T> Vec<T> {
     ///
     /// Using memory that was allocated elsewhere:
     ///
-    /// ```rust
-    /// #![feature(allocator_api)]
-    ///
-    /// use std::alloc::{AllocError, Allocator, Global, Layout};
+    /// ```
+    /// use allocator_api2::{vec, vec::Vec, alloc::{AllocError, Allocator, Global, Layout}};
     ///
     /// fn main() {
     ///     let layout = Layout::array::<u32>(16).expect("overflow cannot happen");
@@ -545,7 +572,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// use std::alloc::System;
+    /// use allocator_api2::{vec::Vec, alloc::System};
     ///
     /// # #[allow(unused_mut)]
     /// let mut vec: Vec<i32, _> = Vec::new_in(System);
@@ -586,7 +613,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// use std::alloc::System;
+    /// use allocator_api2::{vec::Vec, alloc::System};
     ///
     /// let mut vec = Vec::with_capacity_in(10, System);
     ///
@@ -666,13 +693,11 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// use std::alloc::System;
+    /// use allocator_api2::{vec::Vec, alloc::System};
     ///
     /// use std::ptr;
     /// use std::mem;
     ///
-    ///
-    /// # use allocator_api2::vec::Vec;
     /// let mut v = Vec::with_capacity_in(3, System);
     /// v.push(1);
     /// v.push(2);
@@ -703,8 +728,8 @@ impl<T, A: Allocator> Vec<T, A> {
     ///
     /// Using memory that was allocated elsewhere:
     ///
-    /// ```rust
-    /// use std::alloc::{alloc, Layout};
+    /// ```
+    /// use allocator_api2::{vec::Vec, alloc::{alloc, Layout}};
     ///
     /// fn main() {
     ///     let layout = Layout::array::<u32>(16).expect("overflow cannot happen");
@@ -751,7 +776,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(vec_into_raw_parts)]
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// let v: Vec<i32> = vec![-1, 0, 1];
     ///
     /// let (ptr, len, cap) = v.into_raw_parts();
@@ -787,9 +813,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, vec_into_raw_parts)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{vec::Vec, alloc::System};
     ///
     /// let mut v: Vec<i32, System> = Vec::new_in(System);
     /// v.push(-1);
@@ -823,6 +847,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec::Vec;
+    ///
     /// let mut vec: Vec<i32> = Vec::with_capacity(10);
     /// vec.push(42);
     /// assert_eq!(vec.capacity(), 10);
@@ -845,6 +871,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1];
     /// vec.reserve(10);
     /// assert!(vec.capacity() >= 11);
@@ -875,6 +903,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1];
     /// vec.reserve_exact(10);
     /// assert!(vec.capacity() >= 11);
@@ -900,7 +930,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// use allocator_api2::collections::TryReserveError;
+    /// use allocator_api2::{vec::Vec, collections::TryReserveError};
     ///
     /// fn process_data(data: &[u32]) -> Result<Vec<u32>, TryReserveError> {
     ///     let mut output = Vec::new();
@@ -943,7 +973,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// use allocator_api2::collections::TryReserveError;
+    /// use allocator_api2::{vec::Vec, collections::TryReserveError};
     ///
     /// fn process_data(data: &[u32]) -> Result<Vec<u32>, TryReserveError> {
     ///     let mut output = Vec::new();
@@ -973,6 +1003,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec::Vec;
+    ///
     /// let mut vec = Vec::with_capacity(10);
     /// vec.extend([1, 2, 3]);
     /// assert_eq!(vec.capacity(), 10);
@@ -1000,6 +1032,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec::Vec;
+    ///
     /// let mut vec = Vec::with_capacity(10);
     /// vec.extend([1, 2, 3]);
     /// assert_eq!(vec.capacity(), 10);
@@ -1026,6 +1060,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let v = vec![1, 2, 3];
     ///
     /// let slice = v.into_boxed_slice();
@@ -1034,6 +1070,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// Any excess capacity is removed:
     ///
     /// ```
+    /// use allocator_api2::vec::Vec;
+    ///
     /// let mut vec = Vec::with_capacity(10);
     /// vec.extend([1, 2, 3]);
     ///
@@ -1070,6 +1108,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// Truncating a five element vector to two elements:
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3, 4, 5];
     /// vec.truncate(2);
     /// assert_eq!(vec, [1, 2]);
@@ -1079,6 +1119,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// length:
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3];
     /// vec.truncate(8);
     /// assert_eq!(vec, [1, 2, 3]);
@@ -1088,6 +1130,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// method.
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3];
     /// vec.truncate(0);
     /// assert_eq!(vec, []);
@@ -1125,7 +1169,10 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// use std::io::{self, Write};
+    ///
     /// let buffer = vec![1, 2, 3, 5, 8];
     /// io::sink().write(buffer.as_slice()).unwrap();
     /// ```
@@ -1141,7 +1188,10 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// use std::io::{self, Read};
+    ///
     /// let mut buffer = vec![0; 3];
     /// io::repeat(0b101).read_exact(buffer.as_mut_slice()).unwrap();
     /// ```
@@ -1165,6 +1215,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let x = vec![1, 2, 4];
     /// let x_ptr = x.as_ptr();
     ///
@@ -1198,6 +1250,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec::Vec;
+    ///
     /// // Allocate vector big enough for 4 elements.
     /// let size = 4;
     /// let mut x: Vec<i32> = Vec::with_capacity(size);
@@ -1255,6 +1309,8 @@ impl<T, A: Allocator> Vec<T, A> {
     ///
     /// ```no_run
     /// # #![allow(dead_code)]
+    /// use allocator_api2::vec::Vec;
+    ///
     /// # // This is just a minimal skeleton for the doc example;
     /// # // don't use this as a starting point for a real library.
     /// # pub struct StreamWrapper { strm: *mut std::ffi::c_void }
@@ -1294,6 +1350,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// the inner vectors were not freed prior to the `set_len` call:
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![vec![1, 0, 0],
     ///                    vec![0, 1, 0],
     ///                    vec![0, 0, 1]];
@@ -1330,6 +1388,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut v = vec!["foo", "bar", "baz", "qux"];
     ///
     /// assert_eq!(v.swap_remove(1), "bar");
@@ -1375,6 +1435,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3];
     /// vec.insert(1, 4);
     /// assert_eq!(vec, [1, 4, 2, 3]);
@@ -1444,6 +1506,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut v = vec![1, 2, 3];
     /// assert_eq!(v.remove(1), 2);
     /// assert_eq!(v, [1, 3]);
@@ -1489,6 +1553,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3, 4];
     /// vec.retain(|&x| x % 2 == 0);
     /// assert_eq!(vec, [2, 4]);
@@ -1498,6 +1564,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// external state may be used to decide which elements to keep.
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3, 4, 5];
     /// let keep = [false, true, true, false, true];
     /// let mut iter = keep.iter();
@@ -1521,6 +1589,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3, 4];
     /// vec.retain_mut(|x| if *x <= 3 {
     ///     *x += 1;
@@ -1639,6 +1709,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![10, 20, 21, 30, 20];
     ///
     /// vec.dedup_by_key(|i| *i / 10);
@@ -1666,6 +1738,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec!["foo", "bar", "Bar", "baz", "bar"];
     ///
     /// vec.dedup_by(|a, b| a.eq_ignore_ascii_case(b));
@@ -1781,6 +1855,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2];
     /// vec.push(3);
     /// assert_eq!(vec, [1, 2, 3]);
@@ -1815,9 +1891,10 @@ impl<T, A: Allocator> Vec<T, A> {
     /// A manual, panic-free alternative to [`FromIterator`]:
     ///
     /// ```
-    /// #![feature(vec_push_within_capacity)]
+    /// use std::iter::FromIterator;
     ///
-    /// use std::collections::TryReserveError;
+    /// use allocator_api2::{vec::Vec, collections::TryReserveError};
+    ///
     /// fn from_iter_fallible<T>(iter: impl Iterator<Item=T>) -> Result<Vec<T>, TryReserveError> {
     ///     let mut vec = Vec::new();
     ///     for value in iter {
@@ -1855,6 +1932,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3];
     /// assert_eq!(vec.pop(), Some(3));
     /// assert_eq!(vec, [1, 2]);
@@ -1880,6 +1959,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3];
     /// let mut vec2 = vec![4, 5, 6];
     /// vec.append(&mut vec2);
@@ -1927,6 +2008,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// let mut v = vec![1, 2, 3];
     /// let u: Vec<_> = v.drain(1..).collect();
     /// assert_eq!(v, &[1]);
@@ -1991,6 +2074,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut v = vec![1, 2, 3];
     ///
     /// v.clear();
@@ -2019,6 +2104,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let a = vec![1, 2, 3];
     /// assert_eq!(a.len(), 3);
     /// ```
@@ -2032,6 +2119,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec::Vec;
+    ///
     /// let mut v = Vec::new();
     /// assert!(v.is_empty());
     ///
@@ -2056,6 +2145,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3];
     /// let vec2 = vec.split_off(1);
     /// assert_eq!(vec, [1]);
@@ -2116,6 +2207,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 3];
     /// vec.resize_with(5, Default::default);
     /// assert_eq!(vec, [1, 2, 3, 0, 0]);
@@ -2157,6 +2250,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// Simple usage:
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let x = vec![1, 2, 3];
     /// let static_ref: &'static mut [usize] = x.leak();
     /// static_ref[0] += 1;
@@ -2183,6 +2278,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec::Vec;
+    ///
     /// // Allocate vector big enough for 10 elements.
     /// let mut v = Vec::with_capacity(10);
     ///
@@ -2239,7 +2336,7 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(vec_split_at_spare)]
+    /// use allocator_api2::vec;
     ///
     /// let mut v = vec![1, 1, 2];
     ///
@@ -2314,6 +2411,8 @@ impl<T: Clone, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec!["hello"];
     /// vec.resize(3, "world");
     /// assert_eq!(vec, ["hello", "world", "world"]);
@@ -2369,6 +2468,8 @@ impl<T: Clone, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![0, 1, 2, 3, 4];
     ///
     /// vec.extend_from_within(2..);
@@ -2441,7 +2542,7 @@ impl<T, A: Allocator, const N: usize> Vec<[T; N], A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(slice_flatten)]
+    /// use allocator_api2::vec;
     ///
     /// let mut vec = vec![[1, 2, 3], [4, 5, 6], [7, 8, 9]];
     /// assert_eq!(vec.pop(), Some([7, 8, 9]));
@@ -2533,6 +2634,8 @@ impl<T: PartialEq, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let mut vec = vec![1, 2, 2, 3, 2];
     ///
     /// vec.dedup();
@@ -2594,10 +2697,11 @@ impl<T: Clone, A: Allocator + Clone> Clone for Vec<T, A> {
 /// as required by the `core::borrow::Borrow` implementation.
 ///
 /// ```
-/// #![feature(build_hasher_simple_hash_one)]
 /// use std::hash::BuildHasher;
 ///
-/// let b = std::collections::hash_map::RandomState::new();
+/// use allocator_api2::{vec, vec::Vec};
+///
+/// let b = std::hash::RandomState::new();
 /// let v: Vec<u8> = vec![0xa8, 0x3c, 0x09];
 /// let s: &[u8] = &[0xa8, 0x3c, 0x09];
 /// assert_eq!(b.hash_one(v), b.hash_one(s));
@@ -2646,6 +2750,8 @@ impl<T, A: Allocator> IntoIterator for Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::vec;
+    ///
     /// let v = vec!["a".to_string(), "b".to_string()];
     /// let mut v_iter = v.into_iter();
     ///
@@ -2756,6 +2862,8 @@ impl<T, A: Allocator> Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// let mut v = vec![1, 2, 3, 4];
     /// let new = [7, 8, 9];
     /// let u: Vec<_> = v.splice(1..3, new).collect();
@@ -2887,6 +2995,8 @@ impl<T: Clone> From<&[T]> for Vec<T> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// assert_eq!(Vec::from(&[1, 2, 3][..]), vec![1, 2, 3]);
     /// ```
     #[inline(always)]
@@ -2904,6 +3014,8 @@ impl<T: Clone> From<&mut [T]> for Vec<T> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// assert_eq!(Vec::from(&mut [1, 2, 3][..]), vec![1, 2, 3]);
     /// ```
     #[inline(always)]
@@ -2929,6 +3041,8 @@ impl<T, A: Allocator> From<Box<[T], A>> for Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, vec::Vec, boxed::Box};
+    ///
     /// let b: Box<[i32]> = vec![1, 2, 3].into_boxed_slice();
     /// assert_eq!(Vec::from(b), vec![1, 2, 3]);
     /// ```
@@ -2945,6 +3059,8 @@ impl<T, A: Allocator, const N: usize> From<Box<[T; N], A>> for Vec<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, vec::Vec, boxed::Box};
+    ///
     /// let b: Box<[i32; 3]> = Box::new([1, 2, 3]);
     /// assert_eq!(Vec::from(b), vec![1, 2, 3]);
     /// ```
@@ -2965,15 +3081,19 @@ impl<T, A: Allocator> From<Vec<T, A>> for Box<[T], A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, boxed::Box};
+    ///
     /// assert_eq!(Box::from(vec![1, 2, 3]), vec![1, 2, 3].into_boxed_slice());
     /// ```
     ///
     /// Any excess capacity is removed:
     /// ```
-    /// let mut vec = Vec::with_capacity(10);
-    /// vec.extend([1, 2, 3]);
+    /// use allocator_api2::{vec, vec::Vec, boxed::Box};
     ///
-    /// assert_eq!(Box::from(vec), vec![1, 2, 3].into_boxed_slice());
+    /// let mut vec = Vec::with_capacity(10);
+    /// vec.extend([1i32, 2, 3]);
+    ///
+    /// assert_eq!(Box::from(vec), vec![1i32, 2, 3].into_boxed_slice());
     /// ```
     #[inline(always)]
     fn from(v: Vec<T, A>) -> Self {
@@ -2988,6 +3108,8 @@ impl From<&str> for Vec<u8> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// assert_eq!(Vec::from("123"), vec![b'1', b'2', b'3']);
     /// ```
     #[inline(always)]
@@ -3005,12 +3127,20 @@ impl<T, A: Allocator, const N: usize> TryFrom<Vec<T, A>> for [T; N] {
     /// # Examples
     ///
     /// ```
+    /// use std::convert::TryInto;
+    ///
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// assert_eq!(vec![1, 2, 3].try_into(), Ok([1, 2, 3]));
     /// assert_eq!(<Vec<i32>>::new().try_into(), Ok([]));
     /// ```
     ///
     /// If the length doesn't match, the input comes back in `Err`:
     /// ```
+    /// use std::convert::TryInto;
+    ///
+    /// use allocator_api2::{vec, vec::Vec};
+    ///
     /// let r: Result<[i32; 4], _> = (0..10).collect::<Vec<_>>().try_into();
     /// assert_eq!(r, Err(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
     /// ```
@@ -3018,7 +3148,12 @@ impl<T, A: Allocator, const N: usize> TryFrom<Vec<T, A>> for [T; N] {
     /// If you're fine with just getting a prefix of the `Vec<T>`,
     /// you can call [`.truncate(N)`](Vec::truncate) first.
     /// ```
-    /// let mut v = String::from("hello world").into_bytes();
+    /// use std::convert::TryInto;
+    ///
+    /// use allocator_api2::vec::Vec;
+    ///
+    /// let mut v = Vec::new();
+    /// v.extend_from_slice(b"hello world");
     /// v.sort();
     /// v.truncate(2);
     /// let [a, b]: [_; 2] = v.try_into().unwrap();

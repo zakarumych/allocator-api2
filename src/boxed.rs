@@ -10,6 +10,8 @@
 //! Move a value from the stack to the heap by creating a [`Box`]:
 //!
 //! ```
+//! use allocator_api2::boxed::Box;
+//!
 //! let val: u8 = 5;
 //! let boxed: Box<u8> = Box::new(val);
 //! ```
@@ -17,6 +19,8 @@
 //! Move a value from a [`Box`] back to the stack by [dereferencing]:
 //!
 //! ```
+//! use allocator_api2::boxed::Box;
+//!
 //! let boxed: Box<u8> = Box::new(5);
 //! let val: u8 = *boxed;
 //! ```
@@ -24,6 +28,8 @@
 //! Creating a recursive data structure:
 //!
 //! ```
+//! use allocator_api2::boxed::Box;
+//!
 //! #[derive(Debug)]
 //! enum List<T> {
 //!     Cons(T, Box<List<T>>),
@@ -95,6 +101,8 @@
 //! cannot be null.
 //!
 //! ```
+//! use allocator_api2::boxed::Box;
+//!
 //! #[repr(C)]
 //! pub struct Foo;
 //!
@@ -202,6 +210,8 @@ impl<T> Box<T> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let five = Box::new(5);
     /// ```
     #[cfg(all(not(no_global_oom_handling)))]
@@ -216,7 +226,7 @@ impl<T> Box<T> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let mut five = Box::<u32>::new_uninit();
     ///
@@ -245,7 +255,7 @@ impl<T> Box<T> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_zeroed_alloc)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let zero = Box::<u32>::new_zeroed();
     /// let zero = unsafe { zero.assume_init() };
@@ -283,10 +293,10 @@ impl<T> Box<T> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let five = Box::try_new(5)?;
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     #[inline(always)]
     pub fn try_new(x: T) -> Result<Self, AllocError> {
@@ -299,7 +309,7 @@ impl<T> Box<T> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let mut five = Box::<u32>::try_new_uninit()?;
     ///
@@ -311,7 +321,7 @@ impl<T> Box<T> {
     /// };
     ///
     /// assert_eq!(*five, 5);
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     #[inline(always)]
     pub fn try_new_uninit() -> Result<Box<mem::MaybeUninit<T>>, AllocError> {
@@ -327,13 +337,13 @@ impl<T> Box<T> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let zero = Box::<u32>::try_new_zeroed()?;
     /// let zero = unsafe { zero.assume_init() };
     ///
     /// assert_eq!(*zero, 0);
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
@@ -351,9 +361,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let five = Box::new_in(5, System);
     /// ```
@@ -379,12 +387,10 @@ impl<T, A: Allocator> Box<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{alloc::System, boxed::Box};
     ///
     /// let five = Box::try_new_in(5, System)?;
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     #[inline(always)]
     pub fn try_new_in(x: T, alloc: A) -> Result<Self, AllocError>
@@ -403,9 +409,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let mut five = Box::<u32, _>::new_uninit_in(System);
     ///
@@ -441,9 +445,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let mut five = Box::<u32, _>::try_new_uninit_in(System)?;
     ///
@@ -455,7 +457,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// };
     ///
     /// assert_eq!(*five, 5);
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     #[inline(always)]
     pub fn try_new_uninit_in(alloc: A) -> Result<Box<mem::MaybeUninit<T>, A>, AllocError>
@@ -481,9 +483,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let zero = Box::<u32, _>::new_zeroed_in(System);
     /// let zero = unsafe { zero.assume_init() };
@@ -519,15 +519,13 @@ impl<T, A: Allocator> Box<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let zero = Box::<u32, _>::try_new_zeroed_in(System)?;
     /// let zero = unsafe { zero.assume_init() };
     ///
     /// assert_eq!(*zero, 0);
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
@@ -576,7 +574,7 @@ impl<T, A: Allocator> Box<T, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(box_into_inner)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let c = Box::new(5);
     ///
@@ -604,7 +602,7 @@ impl<T> Box<[T]> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let mut values = Box::<[u32]>::new_uninit_slice(3);
     ///
@@ -635,7 +633,7 @@ impl<T> Box<[T]> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_zeroed_alloc)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let values = Box::<[u32]>::new_zeroed_slice(3);
     /// let values = unsafe { values.assume_init() };
@@ -657,7 +655,7 @@ impl<T> Box<[T]> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let mut values = Box::<[u32]>::try_new_uninit_slice(3)?;
     /// let values = unsafe {
@@ -669,7 +667,7 @@ impl<T> Box<[T]> {
     /// };
     ///
     /// assert_eq!(*values, [1, 2, 3]);
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     #[inline(always)]
     pub fn try_new_uninit_slice(len: usize) -> Result<Box<[mem::MaybeUninit<T>]>, AllocError> {
@@ -685,13 +683,13 @@ impl<T> Box<[T]> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let values = Box::<[u32]>::try_new_zeroed_slice(3)?;
     /// let values = unsafe { values.assume_init() };
     ///
     /// assert_eq!(*values, [0, 0, 0]);
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
@@ -707,9 +705,7 @@ impl<T, A: Allocator> Box<[T], A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let mut values = Box::<[u32], _>::new_uninit_slice_in(3, System);
     ///
@@ -740,9 +736,7 @@ impl<T, A: Allocator> Box<[T], A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let values = Box::<[u32], _>::new_zeroed_slice_in(3, System);
     /// let values = unsafe { values.assume_init() };
@@ -764,9 +758,7 @@ impl<T, A: Allocator> Box<[T], A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let mut values = Box::<[u32], _>::try_new_uninit_slice_in(3, System)?;
     /// let values = unsafe {
@@ -778,7 +770,7 @@ impl<T, A: Allocator> Box<[T], A> {
     /// };
     ///
     /// assert_eq!(*values, [1, 2, 3]);
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     #[inline]
     pub fn try_new_uninit_slice_in(
@@ -806,15 +798,13 @@ impl<T, A: Allocator> Box<[T], A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(allocator_api, new_uninit)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let values = Box::<[u32], _>::try_new_zeroed_slice_in(3, System)?;
     /// let values = unsafe { values.assume_init() };
     ///
     /// assert_eq!(*values, [0, 0, 0]);
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     ///
     /// [zeroed]: mem::MaybeUninit::zeroed
@@ -843,7 +833,9 @@ impl<T, A: Allocator> Box<[T], A> {
     /// # Examples
     ///
     /// ```
-    /// let s: Box<[i32]> = Box::new([10, 40, 30]);
+    /// use allocator_api2::{boxed::Box, unsize_box, vec};
+    ///
+    /// let s: Box<[i32]> = unsize_box!(Box::new([10, 40, 30]));
     /// let x = s.into_vec();
     /// // `s` cannot be used anymore because it has been converted into `x`.
     ///
@@ -878,7 +870,7 @@ impl<T, A: Allocator> Box<mem::MaybeUninit<T>, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let mut five = Box::<u32>::new_uninit();
     ///
@@ -907,7 +899,7 @@ impl<T, A: Allocator> Box<mem::MaybeUninit<T>, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(box_uninit_write)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let big_box = Box::<[usize; 1024]>::new_uninit();
     ///
@@ -949,7 +941,7 @@ impl<T, A: Allocator> Box<[mem::MaybeUninit<T>], A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(new_uninit)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let mut values = Box::<[u32]>::new_uninit_slice(3);
     ///
@@ -993,13 +985,15 @@ impl<T: ?Sized> Box<T> {
     /// Recreate a `Box` which was previously converted to a raw pointer
     /// using [`Box::into_raw`]:
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = Box::new(5);
     /// let ptr = Box::into_raw(x);
     /// let x = unsafe { Box::from_raw(ptr) };
     /// ```
     /// Manually create a `Box` from scratch by using the global allocator:
     /// ```
-    /// use std::alloc::{alloc, Layout};
+    /// use allocator_api2::{boxed::Box, alloc::{alloc, Layout}};
     ///
     /// unsafe {
     ///     let ptr = alloc(Layout::new::<i32>()) as *mut i32;
@@ -1040,7 +1034,7 @@ impl<T: ?Sized> Box<T> {
     /// Recreate a `Box` which was previously converted to a `NonNull`
     /// pointer using [`Box::into_non_null`]:
     /// ```
-    /// #![feature(box_vec_non_null)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let x = Box::new(5);
     /// let non_null = Box::into_non_null(x);
@@ -1048,10 +1042,9 @@ impl<T: ?Sized> Box<T> {
     /// ```
     /// Manually create a `Box` from scratch by using the global allocator:
     /// ```
-    /// #![feature(box_vec_non_null)]
-    ///
-    /// use std::alloc::{alloc, Layout};
     /// use std::ptr::NonNull;
+    ///
+    /// use allocator_api2::{boxed::Box, alloc::{alloc, Layout}};
     ///
     /// unsafe {
     ///     let non_null = NonNull::new(alloc(Layout::new::<i32>()).cast::<i32>())
@@ -1093,8 +1086,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Recreate a `Box` which was previously converted to a raw pointer
     /// using [`Box::into_raw_with_allocator`]:
     /// ```
-    /// use std::alloc::System;
-    /// # use allocator_api2::boxed::Box;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let x = Box::new_in(5, System);
     /// let (ptr, alloc) = Box::into_raw_with_allocator(x);
@@ -1102,8 +1094,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// ```
     /// Manually create a `Box` from scratch by using the system allocator:
     /// ```
-    /// use allocator_api2::alloc::{Allocator, Layout, System};
-    /// # use allocator_api2::boxed::Box;
+    /// use allocator_api2::{boxed::Box, alloc::{Allocator, Layout, System}};
     ///
     /// unsafe {
     ///     let ptr = System.allocate(Layout::new::<i32>())?.as_ptr().cast::<i32>();
@@ -1143,9 +1134,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Recreate a `Box` which was previously converted to a `NonNull` pointer
     /// using [`Box::into_non_null_with_allocator`]:
     /// ```
-    /// #![feature(allocator_api, box_vec_non_null)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let x = Box::new_in(5, System);
     /// let (non_null, alloc) = Box::into_non_null_with_allocator(x);
@@ -1153,9 +1142,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// ```
     /// Manually create a `Box` from scratch by using the system allocator:
     /// ```
-    /// #![feature(allocator_api, box_vec_non_null, slice_ptr_get)]
-    ///
-    /// use std::alloc::{Allocator, Layout, System};
+    /// use allocator_api2::{boxed::Box, alloc::{Allocator, Layout, System}};
     ///
     /// unsafe {
     ///     let non_null = System.allocate(Layout::new::<i32>())?.cast::<i32>();
@@ -1164,7 +1151,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     ///     non_null.write(5);
     ///     let x = Box::from_non_null_in(non_null, System);
     /// }
-    /// # Ok::<(), std::alloc::AllocError>(())
+    /// # Ok::<(), allocator_api2::alloc::AllocError>(())
     /// ```
     ///
     /// [memory layout]: self#memory-layout
@@ -1195,6 +1182,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Converting the raw pointer back into a `Box` with [`Box::from_raw`]
     /// for automatic cleanup:
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = Box::new(String::from("Hello"));
     /// let ptr = Box::into_raw(x);
     /// let x = unsafe { Box::from_raw(ptr) };
@@ -1202,8 +1191,9 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Manual cleanup by explicitly running the destructor and deallocating
     /// the memory:
     /// ```
-    /// use std::alloc::{dealloc, Layout};
     /// use std::ptr;
+    ///
+    /// use allocator_api2::{boxed::Box, alloc::{dealloc, Layout}};
     ///
     /// let x = Box::new(String::from("Hello"));
     /// let p = Box::into_raw(x);
@@ -1239,7 +1229,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Converting the `NonNull` pointer back into a `Box` with [`Box::from_non_null`]
     /// for automatic cleanup:
     /// ```
-    /// #![feature(box_vec_non_null)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let x = Box::new(String::from("Hello"));
     /// let non_null = Box::into_non_null(x);
@@ -1248,9 +1238,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Manual cleanup by explicitly running the destructor and deallocating
     /// the memory:
     /// ```
-    /// #![feature(box_vec_non_null)]
-    ///
-    /// use std::alloc::{dealloc, Layout};
+    /// use allocator_api2::{boxed::Box, alloc::{dealloc, Layout}};
     ///
     /// let x = Box::new(String::from("Hello"));
     /// let non_null = Box::into_non_null(x);
@@ -1261,7 +1249,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// ```
     /// Note: This is equivalent to the following:
     /// ```
-    /// #![feature(box_vec_non_null)]
+    /// use allocator_api2::boxed::Box;
     ///
     /// let x = Box::new(String::from("Hello"));
     /// let non_null = Box::into_non_null(x);
@@ -1298,9 +1286,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Converting the raw pointer back into a `Box` with [`Box::from_raw_in`]
     /// for automatic cleanup:
     /// ```
-    /// #![feature(allocator_api)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let x = Box::new_in(String::from("Hello"), System);
     /// let (ptr, alloc) = Box::into_raw_with_allocator(x);
@@ -1309,10 +1295,9 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Manual cleanup by explicitly running the destructor and deallocating
     /// the memory:
     /// ```
-    /// #![feature(allocator_api)]
-    ///
-    /// use std::alloc::{Allocator, Layout, System};
     /// use std::ptr::{self, NonNull};
+    ///
+    /// use allocator_api2::{boxed::Box, alloc::{Allocator, Layout, System}};
     ///
     /// let x = Box::new_in(String::from("Hello"), System);
     /// let (ptr, alloc) = Box::into_raw_with_allocator(x);
@@ -1351,9 +1336,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Converting the `NonNull` pointer back into a `Box` with
     /// [`Box::from_non_null_in`] for automatic cleanup:
     /// ```
-    /// #![feature(allocator_api, box_vec_non_null)]
-    ///
-    /// use std::alloc::System;
+    /// use allocator_api2::{boxed::Box, alloc::System};
     ///
     /// let x = Box::new_in(String::from("Hello"), System);
     /// let (non_null, alloc) = Box::into_non_null_with_allocator(x);
@@ -1362,9 +1345,7 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Manual cleanup by explicitly running the destructor and deallocating
     /// the memory:
     /// ```
-    /// #![feature(allocator_api, box_vec_non_null)]
-    ///
-    /// use std::alloc::{Allocator, Layout, System};
+    /// use allocator_api2::{boxed::Box, alloc::{Allocator, Layout, System}};
     ///
     /// let x = Box::new_in(String::from("Hello"), System);
     /// let (non_null, alloc) = Box::into_non_null_with_allocator(x);
@@ -1401,8 +1382,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     ///
     /// Due to the aliasing guarantee, the following code is legal:
     ///
-    /// ```rust
-    /// #![feature(box_as_ptr)]
+    /// ```
+    /// use allocator_api2::boxed::Box;
     ///
     /// unsafe {
     ///     let mut b = Box::new(0);
@@ -1442,8 +1423,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     ///
     /// Due to the aliasing guarantee, the following code is legal:
     ///
-    /// ```rust
-    /// #![feature(box_as_ptr)]
+    /// ```
+    /// use allocator_api2::boxed::Box;
     ///
     /// unsafe {
     ///     let mut v = Box::new(0);
@@ -1497,6 +1478,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Simple usage:
     ///
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = Box::new(41);
     /// let static_ref: &'static mut usize = Box::leak(x);
     /// *static_ref += 1;
@@ -1506,6 +1489,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     /// Unsized data:
     ///
     /// ```
+    /// use allocator_api2::{vec, boxed::Box};
+    ///
     /// let x = vec![1, 2, 3].into_boxed_slice();
     /// let static_ref = Box::leak(x);
     /// static_ref[0] = 4;
@@ -1539,6 +1524,8 @@ impl<T: ?Sized, A: Allocator> Box<T, A> {
     ///
     /// ```compile_fail
     /// # use std::pin::Pin;
+    /// use allocator_api2::boxed::Box;
+    ///
     /// struct Foo; // A type defined in this crate.
     /// impl From<Box<()>> for Pin<Foo> {
     ///     fn from(_: Box<()>) -> Pin<Foo> {
@@ -1608,6 +1595,8 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = Box::new(5);
     /// let y = x.clone();
     ///
@@ -1632,6 +1621,8 @@ impl<T: Clone, A: Allocator + Clone> Clone for Box<T, A> {
     /// # Examples
     ///
     /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = Box::new(5);
     /// let mut y = Box::new(10);
     /// let yp: *const i32 = &*y;
@@ -1778,7 +1769,9 @@ impl<T> From<T> for Box<T> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let x = 5;
     /// let boxed = Box::new(5);
     ///
@@ -1819,7 +1812,9 @@ impl<T: Copy, A: Allocator + Default> From<&[T]> for Box<[T], A> {
     /// and performs a copy of `slice` and its contents.
     ///
     /// # Examples
-    /// ```rust
+    /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// // create a &[u8] which will be used to create a Box<[u8]>
     /// let slice: &[u8] = &[104, 101, 108, 108, 111];
     /// let boxed_slice: Box<[u8]> = Box::from(slice);
@@ -1846,7 +1841,9 @@ impl<A: Allocator + Default> From<&str> for Box<str, A> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let boxed: Box<str> = Box::from("hello");
     /// println!("{boxed}");
     /// ```
@@ -1863,7 +1860,9 @@ impl<A: Allocator> From<Box<str, A>> for Box<[u8], A> {
     /// This conversion does not allocate on the heap and happens in place.
     ///
     /// # Examples
-    /// ```rust
+    /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// // create a Box<str> which will be used to create a Box<[u8]>
     /// let boxed: Box<str> = Box::from("hello");
     /// let boxed_str: Box<[u8]> = Box::from(boxed);
@@ -1907,7 +1906,9 @@ impl<T, const N: usize> From<[T; N]> for Box<[T]> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
+    /// use allocator_api2::boxed::Box;
+    ///
     /// let boxed: Box<[u8]> = Box::from([4, 2]);
     /// println!("{boxed:?}");
     /// ```
@@ -1974,11 +1975,11 @@ impl<A: Allocator> Box<dyn Any, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(downcast_unchecked)]
-    ///
     /// use std::any::Any;
     ///
-    /// let x: Box<dyn Any> = Box::new(1_usize);
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
+    /// let x: Box<dyn Any> = unsize_box!(Box::new(1_usize));
     ///
     /// unsafe {
     ///     assert_eq!(*x.downcast_unchecked::<usize>(), 1);
@@ -2009,6 +2010,8 @@ impl<A: Allocator> Box<dyn Any + Send, A> {
     /// ```
     /// use std::any::Any;
     ///
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
     /// fn print_if_string(value: Box<dyn Any + Send>) {
     ///     if let Ok(string) = value.downcast::<String>() {
     ///         println!("String ({}): {}", string.len(), string);
@@ -2016,8 +2019,8 @@ impl<A: Allocator> Box<dyn Any + Send, A> {
     /// }
     ///
     /// let my_string = "Hello World".to_string();
-    /// print_if_string(Box::new(my_string));
-    /// print_if_string(Box::new(0i8));
+    /// print_if_string(unsize_box!(Box::new(my_string)));
+    /// print_if_string(unsize_box!(Box::new(0i8)));
     /// ```
     #[inline(always)]
     pub fn downcast<T: Any>(self) -> Result<Box<T, A>, Self> {
@@ -2035,11 +2038,11 @@ impl<A: Allocator> Box<dyn Any + Send, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(downcast_unchecked)]
-    ///
     /// use std::any::Any;
     ///
-    /// let x: Box<dyn Any + Send> = Box::new(1_usize);
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
+    /// let x: Box<dyn Any + Send> = unsize_box!(Box::new(1_usize));
     ///
     /// unsafe {
     ///     assert_eq!(*x.downcast_unchecked::<usize>(), 1);
@@ -2070,6 +2073,8 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
     /// ```
     /// use std::any::Any;
     ///
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
     /// fn print_if_string(value: Box<dyn Any + Send + Sync>) {
     ///     if let Ok(string) = value.downcast::<String>() {
     ///         println!("String ({}): {}", string.len(), string);
@@ -2077,8 +2082,8 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
     /// }
     ///
     /// let my_string = "Hello World".to_string();
-    /// print_if_string(Box::new(my_string));
-    /// print_if_string(Box::new(0i8));
+    /// print_if_string(unsize_box!(Box::new(my_string)));
+    /// print_if_string(unsize_box!(Box::new(0i8)));
     /// ```
     #[inline(always)]
     pub fn downcast<T: Any>(self) -> Result<Box<T, A>, Self> {
@@ -2096,11 +2101,11 @@ impl<A: Allocator> Box<dyn Any + Send + Sync, A> {
     /// # Examples
     ///
     /// ```
-    /// #![feature(downcast_unchecked)]
-    ///
     /// use std::any::Any;
     ///
-    /// let x: Box<dyn Any + Send + Sync> = Box::new(1_usize);
+    /// use allocator_api2::{boxed::Box, unsize_box};
+    ///
+    /// let x: Box<dyn Any + Send + Sync> = unsize_box!(Box::new(1_usize));
     ///
     /// unsafe {
     ///     assert_eq!(*x.downcast_unchecked::<usize>(), 1);
@@ -2336,6 +2341,8 @@ mod error {
         /// use std::fmt;
         /// use std::mem;
         ///
+        /// use allocator_api2::boxed::Box;
+        ///
         /// #[derive(Debug)]
         /// struct AnError;
         ///
@@ -2369,6 +2376,8 @@ mod error {
         /// use std::error::Error;
         /// use std::fmt;
         /// use std::mem;
+        ///
+        /// use allocator_api2::boxed::Box;
         ///
         /// #[derive(Debug)]
         /// struct AnError;
