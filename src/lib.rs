@@ -53,7 +53,7 @@ mod unique;
 #[macro_export]
 #[cfg(feature = "alloc")]
 macro_rules! unsize_box {( $boxed:expr $(,)? ) => ({
-    let (ptr, allocator) = ::allocator_api2::boxed::Box::into_raw_with_allocator($boxed);
+    let (ptr, allocator) = $crate::boxed::Box::into_raw_with_allocator($boxed);
     // we don't want to allow casting to arbitrary type U, but we do want to allow unsize coercion to happen.
     // that's exactly what's happening here -- this is *not* a pointer cast ptr as *mut _, but the compiler
     // *will* allow an unsizing coercion to happen into the `ptr` place, if one is available. And we use _ so that the user can
@@ -63,7 +63,7 @@ macro_rules! unsize_box {( $boxed:expr $(,)? ) => ({
     // SAFETY: see above for why ptr's type can only be something that can be safely coerced.
     // also, ptr just came from a properly allocated box in the same allocator.
     unsafe {
-        ::allocator_api2::boxed::Box::from_raw_in(ptr, allocator)
+        $crate::boxed::Box::from_raw_in(ptr, allocator)
     }
 })}
 
