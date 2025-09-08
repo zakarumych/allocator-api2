@@ -1,13 +1,13 @@
 [package]
 name = "allocator-api2-tests"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2018"
 description = "Tests for allocators that implement the allocator API"
 license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/allocator-api2-tests"
 homepage = "https://github.com/zakarumych/allocator-api2"
 repository = "https://github.com/zakarumych/allocator-api2"
-rust-version = "1.63"
+rust-version = "1.64"
 
 [features]
 nightly = []
