@@ -2548,25 +2548,25 @@ impl From<&core::ffi::CStr> for Box<core::ffi::CStr> {
 }
 
 #[cfg(feature = "serde")]
-impl<T, A> serde::Serialize for Box<T, A>
+impl<T, A> serde_core::Serialize for Box<T, A>
 where
-    T: serde::Serialize + ?Sized,
+    T: serde_core::Serialize + ?Sized,
     A: Allocator,
 {
     #[inline(always)]
-    fn serialize<S: serde::ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: serde_core::ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         (**self).serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde")]
-impl<'de, T, A> serde::Deserialize<'de> for Box<T, A>
+impl<'de, T, A> serde_core::Deserialize<'de> for Box<T, A>
 where
-    T: serde::Deserialize<'de>,
+    T: serde_core::Deserialize<'de>,
     A: Allocator + Default,
 {
     #[inline(always)]
-    fn deserialize<D: serde::de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+    fn deserialize<D: serde_core::de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let value = T::deserialize(deserializer)?;
         Ok(Box::new_in(value, A::default()))
     }

@@ -3230,38 +3230,38 @@ impl<A: Allocator> io::Write for Vec<u8, A> {
 }
 
 #[cfg(feature = "serde")]
-impl<T, A> serde::Serialize for Vec<T, A>
+impl<T, A> serde_core::Serialize for Vec<T, A>
 where
-    T: serde::Serialize,
+    T: serde_core::Serialize,
     A: Allocator,
 {
     #[inline(always)]
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::ser::Serializer,
+        S: serde_core::ser::Serializer,
     {
         serializer.collect_seq(self)
     }
 }
 
 #[cfg(feature = "serde")]
-impl<'de, T, A> serde::de::Deserialize<'de> for Vec<T, A>
+impl<'de, T, A> serde_core::de::Deserialize<'de> for Vec<T, A>
 where
-    T: serde::de::Deserialize<'de>,
+    T: serde_core::de::Deserialize<'de>,
     A: Allocator + Default,
 {
     #[inline(always)]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: serde::de::Deserializer<'de>,
+        D: serde_core::de::Deserializer<'de>,
     {
         struct VecVisitor<T, A> {
             marker: PhantomData<(T, A)>,
         }
 
-        impl<'de, T, A> serde::de::Visitor<'de> for VecVisitor<T, A>
+        impl<'de, T, A> serde_core::de::Visitor<'de> for VecVisitor<T, A>
         where
-            T: serde::de::Deserialize<'de>,
+            T: serde_core::de::Deserialize<'de>,
             A: Allocator + Default,
         {
             type Value = Vec<T, A>;
@@ -3272,7 +3272,7 @@ where
 
             fn visit_seq<S>(self, mut seq: S) -> Result<Self::Value, S::Error>
             where
-                S: serde::de::SeqAccess<'de>,
+                S: serde_core::de::SeqAccess<'de>,
             {
                 let mut values = Vec::with_capacity_in(cautious(seq.size_hint()), A::default());
 
@@ -3293,13 +3293,13 @@ where
     #[inline(always)]
     fn deserialize_in_place<D>(deserializer: D, place: &mut Self) -> Result<(), D::Error>
     where
-        D: serde::de::Deserializer<'de>,
+        D: serde_core::de::Deserializer<'de>,
     {
         struct VecInPlaceVisitor<'a, T: 'a, A: Allocator + 'a>(&'a mut Vec<T, A>);
 
-        impl<'a, 'de, T, A> serde::de::Visitor<'de> for VecInPlaceVisitor<'a, T, A>
+        impl<'a, 'de, T, A> serde_core::de::Visitor<'de> for VecInPlaceVisitor<'a, T, A>
         where
-            T: serde::de::Deserialize<'de>,
+            T: serde_core::de::Deserialize<'de>,
             A: Allocator + Default,
         {
             type Value = ();
@@ -3310,7 +3310,7 @@ where
 
             fn visit_seq<S>(self, mut seq: S) -> Result<Self::Value, S::Error>
             where
-                S: serde::de::SeqAccess<'de>,
+                S: serde_core::de::SeqAccess<'de>,
             {
                 let hint = cautious(seq.size_hint());
                 if let Some(additional) = hint.checked_sub(self.0.len()) {
@@ -3353,14 +3353,14 @@ pub fn cautious(hint: Option<usize>) -> usize {
 pub struct InPlaceSeed<'a, T: 'a>(pub &'a mut T);
 
 #[cfg(feature = "serde")]
-impl<'a, 'de, T> serde::de::DeserializeSeed<'de> for InPlaceSeed<'a, T>
+impl<'a, 'de, T> serde_core::de::DeserializeSeed<'de> for InPlaceSeed<'a, T>
 where
-    T: serde::de::Deserialize<'de>,
+    T: serde_core::de::Deserialize<'de>,
 {
     type Value = ();
     fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
     where
-        D: serde::de::Deserializer<'de>,
+        D: serde_core::de::Deserializer<'de>,
     {
         T::deserialize_in_place(deserializer, self.0)
     }
