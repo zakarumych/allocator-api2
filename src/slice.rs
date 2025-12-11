@@ -22,7 +22,27 @@ pub trait SliceExt<T> {
     where
         T: Clone,
     {
-        self.to_vec_in(Global)
+        self.to_vec_in2(Global)
+    }
+    
+    /// Copies `self` into a new `Vec`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use allocator_api2::SliceExt;
+    ///
+    /// let s = [10, 40, 30];
+    /// let x = s.to_vec2();
+    /// // Here, `s` and `x` can be modified independently.
+    /// ```
+    #[cfg(not(no_global_oom_handling))]
+    #[inline(always)]
+    fn to_vec2(&self) -> Vec<T, Global>
+    where
+        T: Clone,
+    {
+        self.to_vec_in2(Global)
     }
 
     /// Copies `self` into a new `Vec` with an allocator.
@@ -38,6 +58,25 @@ pub trait SliceExt<T> {
     /// ```
     #[cfg(not(no_global_oom_handling))]
     fn to_vec_in<A: Allocator>(&self, alloc: A) -> Vec<T, A>
+    where
+        T: Clone,
+    {
+        Self::to_vec_in2(self, alloc)
+    }
+
+    /// Copies `self` into a new `Vec` with an allocator.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use allocator_api2::{SliceExt, alloc::System};
+    ///
+    /// let s = [10, 40, 30];
+    /// let x = s.to_vec_in2(System);
+    /// // Here, `s` and `x` can be modified independently.
+    /// ```
+    #[cfg(not(no_global_oom_handling))]
+    fn to_vec_in2<A: Allocator>(&self, alloc: A) -> Vec<T, A>
     where
         T: Clone;
 
@@ -65,13 +104,42 @@ pub trait SliceExt<T> {
     /// ```
     fn repeat(&self, n: usize) -> Vec<T, Global>
     where
+        T: Copy,
+    {
+        Self::repeat2(self, n)
+    }
+        
+    /// Creates a vector by copying a slice `n` times.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the capacity would overflow.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use allocator_api2::{SliceExt, vec};
+    ///
+    /// assert_eq!([1, 2].repeat2(3), vec![1, 2, 1, 2, 1, 2]);
+    /// ```
+    ///
+    /// A panic upon overflow:
+    ///
+    /// ```should_panic
+    /// // this will panic at runtime
+    /// b"0123456789abcdef".repeat(usize::MAX);
+    /// ```
+    fn repeat2(&self, n: usize) -> Vec<T, Global>
+    where
         T: Copy;
 }
 
 impl<T> SliceExt<T> for [T] {
     #[cfg(not(no_global_oom_handling))]
     #[inline]
-    fn to_vec_in<A: Allocator>(&self, alloc: A) -> Vec<T, A>
+    fn to_vec_in2<A: Allocator>(&self, alloc: A) -> Vec<T, A>
     where
         T: Clone,
     {
@@ -113,7 +181,7 @@ impl<T> SliceExt<T> for [T] {
 
     #[cfg(not(no_global_oom_handling))]
     #[inline]
-    fn repeat(&self, n: usize) -> Vec<T, Global>
+    fn repeat2(&self, n: usize) -> Vec<T, Global>
     where
         T: Copy,
     {
