@@ -2550,7 +2550,7 @@ impl From<&core::ffi::CStr> for Box<core::ffi::CStr> {
 #[cfg(feature = "serde")]
 impl<T, A> serde::Serialize for Box<T, A>
 where
-    T: serde::Serialize,
+    T: serde::Serialize + ?Sized,
     A: Allocator,
 {
     #[inline(always)]
