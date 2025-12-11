@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 11.12.2025
+
 ### Added
 
 - Implementation of `Allocator for &mut A` as it was added to `core`
