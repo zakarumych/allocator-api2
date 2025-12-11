@@ -32,7 +32,10 @@ pub use alloc_crate::alloc::handle_alloc_error;
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct AllocError;
 
-#[cfg(feature = "std")]
+#[cfg(feature = "fresh-rust")]
+impl core::error::Error for AllocError {}
+
+#[cfg(all(not(feature = "fresh-rust"), feature = "std"))]
 impl std::error::Error for AllocError {}
 
 // (we need this for downstream impl of trait Error)

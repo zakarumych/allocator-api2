@@ -2324,9 +2324,13 @@ where
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "fresh-rust", feature = "std"))]
 mod error {
+    #[cfg(feature = "std")]
     use std::error::Error;
+
+    #[cfg(not(feature = "std"))]
+    use core::error::Error;
 
     use super::Box;
 

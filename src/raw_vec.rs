@@ -79,7 +79,10 @@ impl fmt::Display for TryReserveError {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "fresh-rust")]
+impl core::error::Error for TryReserveError {}
+
+#[cfg(all(not(feature = "fresh-rust"), feature = "std"))]
 impl std::error::Error for TryReserveError {}
 
 #[cfg(not(no_global_oom_handling))]
