@@ -21,8 +21,7 @@ use super::Vec;
 /// # Example
 ///
 /// ```
-/// use allocator_api2::vec;
-///
+/// # use allocator_api2::vec;
 /// let v = vec![0, 1, 2];
 /// let iter: vec::IntoIter<_> = v.into_iter();
 /// ```
@@ -49,6 +48,7 @@ impl<T, A: Allocator> IntoIter<T, A> {
     /// # Examples
     ///
     /// ```
+    /// # use allocator_api2::vec;
     /// let vec = vec!['a', 'b', 'c'];
     /// let mut into_iter = vec.into_iter();
     /// assert_eq!(into_iter.as_slice(), &['a', 'b', 'c']);
@@ -64,6 +64,7 @@ impl<T, A: Allocator> IntoIter<T, A> {
     /// # Examples
     ///
     /// ```
+    /// # use allocator_api2::vec;
     /// let vec = vec!['a', 'b', 'c'];
     /// let mut into_iter = vec.into_iter();
     /// assert_eq!(into_iter.as_slice(), &['a', 'b', 'c']);
@@ -189,5 +190,22 @@ impl<T, A: Allocator> Drop for IntoIter<T, A> {
             ptr::drop_in_place(guard.0.as_raw_mut_slice());
         }
         // now `guard` will be dropped and do the rest
+    }
+}
+
+impl<T, A> Default for IntoIter<T, A>
+where
+    A: Allocator + Default,
+{
+    /// Creates an empty `vec::IntoIter`.
+    ///
+    /// ```
+    /// # use allocator_api2::vec;
+    /// let iter: vec::IntoIter<u8> = Default::default();
+    /// assert_eq!(iter.len(), 0);
+    /// assert_eq!(iter.as_slice(), &[]);
+    /// ```
+    fn default() -> Self {
+        super::Vec::new_in(Default::default()).into_iter()
     }
 }
