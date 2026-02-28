@@ -1455,6 +1455,9 @@ impl<T, A: Allocator> Vec<T, A> {
         }
 
         let len = self.len();
+        if index > len {
+            assert_failed(index, len);
+        }
 
         // space for the new element
         if len == self.buf.capacity() {
@@ -1464,20 +1467,12 @@ impl<T, A: Allocator> Vec<T, A> {
         unsafe {
             // infallible
             // The spot to put the new value
+            let p = self.as_mut_ptr().add(index);
             {
-                let p = self.as_mut_ptr().add(index);
-                match cmp::Ord::cmp(&index, &len) {
-                    Ordering::Less => {
-                        // Shift everything over to make space. (Duplicating the
-                        // `index`th element into two consecutive places.)
-                        ptr::copy(p, p.add(1), len - index);
-                    }
-                    Ordering::Equal => {
-                        // No elements need shifting.
-                    }
-                    Ordering::Greater => {
-                        assert_failed(index, len);
-                    }
+                if index < len {
+                    // Shift everything over to make space. (Duplicating the
+                    // `index`th element into two consecutive places.)
+                    ptr::copy(p, p.add(1), len - index);
                 }
                 // Write it in, overwriting the first copy of the `index`th
                 // element.
