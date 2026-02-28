@@ -143,8 +143,9 @@ impl<T, A: Allocator> DoubleEndedIterator for IntoIter<T, A> {
         if self.end == self.ptr {
             None
         } else if size_of::<T>() == 0 {
-            // See above for why 'ptr.offset' isn't used
-            self.end = self.end.cast::<u8>().wrapping_add(1).cast();
+            // `ptr` has to stay where it is to remain aligned, so we reduce the length by 1 by
+            // reducing the `end`.
+            self.end = self.end.wrapping_byte_sub(1);
 
             // Make up a value of this ZST.
             Some(unsafe { mem::zeroed() })
