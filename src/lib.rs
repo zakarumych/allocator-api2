@@ -111,3 +111,6 @@ fn invalid_mut<T>(addr: usize) -> *mut T {
         core::mem::transmute(addr)
     }
 }
+
+#[cfg(test)]
+mod tests;
